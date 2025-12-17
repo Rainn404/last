@@ -52,6 +52,7 @@ class BeritaController extends Controller
         return view('admin.berita.show', compact('berita'));
     }
 
+    // Tambahan khusus tombol “Lihat” di admin (tidak ke halaman publik)
     public function adminShow($id)
     {
         $berita = Berita::findOrFail($id);
@@ -101,28 +102,32 @@ class BeritaController extends Controller
         return redirect()->route('admin.berita.index')->with('success', 'Berita berhasil dihapus.');
     }
 
+    /* =========================================================
+     * FRONTEND / PUBLIK AREA
+     * ========================================================= */
+
+    // GET /berita → hanya 3 berita utama
     public function publicIndex()
     {
         $highlight = Berita::orderByDesc('Tanggal_berita')
                             ->orderByDesc('Id_berita')
                             ->take(3)
                             ->get();
-                            
 
-        $mode = 'utama'; // penanda halaman utama
-        return view('berita.index', compact('highlight', 'mode'));
+        return view('berita.index', compact('highlight'));
     }
 
+    // GET /berita-lainnya → semua berita
     public function lainnya()
     {
         $beritaLainnya = Berita::orderByDesc('Tanggal_berita')
                                 ->orderByDesc('Id_berita')
-                                ->take(PHP_INT_MAX)
                                 ->get();
 
         return view('berita.lainnya', compact('beritaLainnya'));
     }
 
+    // GET /berita/{id} → halaman detail berita publik
     public function publicShow($id)
     {
         $berita = Berita::with('komentar')->findOrFail($id);

@@ -29,20 +29,19 @@
     border-radius: 10px;
   }
 
-.btn-read {
-  background-color: #1f2942; /* biru tua */
-  border: none;
-  color: #fff; /* teks putih */
-  font-weight: 600;
-  border-radius: 8px;
-  padding: 8px 16px;
-  transition: 0.3s;
-}
-
-.btn-read:hover {
-  background-color: #2b3555; /* warna hover sedikit lebih terang */
-  color: #fff;
-}
+  .btn-read {
+    background-color: #ffc107;
+    border: none;
+    color: #000;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 8px 16px;
+    transition: 0.3s;
+  }
+  .btn-read:hover {
+    background-color: #ffb100;
+    color: #000;
+  }
 
   .title-section {
     font-weight: 800;
@@ -106,10 +105,10 @@
 
 <div class="container py-4">
 
- <a href="{{ route('berita.index') }}" class="btn btn-primary">
-  <i class="fas fa-arrow-left"></i> Kembali ke Berita Utama
-</a>
-
+  <!-- Tombol kembali -->
+  <a href="{{ route('berita.index') }}" class="back-btn">
+    <i class="fas fa-arrow-left"></i> Kembali ke Berita Utama
+  </a>
 
   <!-- Judul Halaman -->
   <h3 class="title-section">
