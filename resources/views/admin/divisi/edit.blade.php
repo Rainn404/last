@@ -6,7 +6,7 @@
 <div class="container-fluid">
     <!-- Page Heading -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Edit Divisi</h1>
+        <h1 class="h3 mb-0 text-gray-900-bold">Edit Divisi</h1>
         <a href="{{ route('admin.divisi.index') }}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
             <i class="fas fa-arrow-left fa-sm text-white-50"></i> Kembali
         </a>
@@ -57,6 +57,43 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
+
+            <div class="form-group">
+    <label for="nama" class="font-weight-bold">Nama Divisi *</label>
+    <select class="form-control @error('nama') is-invalid @enderror"
+            id="nama" name="nama" required>
+        <option value="">-- Pilih Divisi --</option>
+
+        <option value="Teknologi & Pengembangan"
+            {{ old('nama', $divisi->nama) == 'Teknologi & Pengembangan' ? 'selected' : '' }}>
+            Teknologi & Pengembangan
+        </option>
+
+        <option value="Humas & Kemitraan"
+            {{ old('nama', $divisi->nama) == 'Humas & Kemitraan' ? 'selected' : '' }}>
+            Humas & Kemitraan
+        </option>
+
+        <option value="Akademik & Penelitian"
+            {{ old('nama', $divisi->nama) == 'Akademik & Penelitian' ? 'selected' : '' }}>
+            Akademik & Penelitian
+        </option>
+
+        <option value="Minat & Bakat"
+            {{ old('nama', $divisi->nama) == 'Minat & Bakat' ? 'selected' : '' }}>
+            Minat & Bakat
+        </option>
+
+        <option value="Kewirausahaan"
+            {{ old('nama', $divisi->nama) == 'Kewirausahaan' ? 'selected' : '' }}>
+            Kewirausahaan
+        </option>
+    </select>
+
+    @error('nama')
+        <div class="invalid-feedback">{{ $message }}</div>
+    @enderror
+</div>
 
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary">

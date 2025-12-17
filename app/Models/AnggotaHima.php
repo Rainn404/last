@@ -17,7 +17,7 @@ class AnggotaHima extends Model
     protected $fillable = [
         'id_user',
         'nama',
-        'nim', 
+        'nim',
         'id_divisi',
         'id_jabatan',
         'semester',
@@ -32,85 +32,103 @@ class AnggotaHima extends Model
         'updated_at' => 'datetime',
     ];
 
-    // 🔹 Relasi ke Divisi dengan default value
+    /* ---------------------------------------------------
+     |  RELASI
+     --------------------------------------------------- */
+
+    // Relasi ke tabel Divisi
     public function divisi()
     {
         return $this->belongsTo(Divisi::class, 'id_divisi', 'id_divisi')
                     ->withDefault([
                         'nama_divisi' => 'Tidak ada divisi',
-                        'id_divisi' => null
                     ]);
     }
 
-    // 🔹 Relasi ke Jabatan dengan default value  
+    // Relasi ke Jabatan
     public function jabatan()
     {
         return $this->belongsTo(Jabatan::class, 'id_jabatan', 'id_jabatan')
                     ->withDefault([
                         'nama_jabatan' => 'Tidak ada jabatan',
-                        'id_jabatan' => null
                     ]);
     }
 
-    // 🔹 Relasi ke User dengan default value
+    // Relasi ke User
     public function user()
     {
         return $this->belongsTo(User::class, 'id_user', 'id')
                     ->withDefault([
-                        'name' => 'Tidak ada user',
-                        'email' => 'No email'
+                        'name'  => 'Tidak ada user',
+                        'email' => '-',
                     ]);
     }
 
-    // 🔹 Accessor untuk status text
+    /* ---------------------------------------------------
+     |  ACCESSORS
+     --------------------------------------------------- */
+
+    // Status (Aktif / Tidak Aktif)
     public function getStatusTextAttribute()
     {
         return $this->status ? 'Aktif' : 'Tidak Aktif';
     }
 
-    // 🔹 Accessor untuk foto URL
+    // Foto URL otomatis
     public function getFotoUrlAttribute()
     {
         if ($this->foto) {
             return asset('storage/' . $this->foto);
         }
-        return 'https://ui-avatars.com/api/?name=' . urlencode($this->nama) . '&background=3B82F6&color=fff';
+
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->nama) .
+               '&background=3B82F6&color=fff';
     }
 
-    // 🔹 Scope untuk anggota aktif
+    /* ---------------------------------------------------
+     |  SCOPES
+     --------------------------------------------------- */
+
+    // Hanya anggota aktif
     public function scopeAktif($query)
     {
         return $query->where('status', true);
     }
 
-    // 🔹 Scope untuk anggota tidak aktif
+    // Hanya anggota tidak aktif
     public function scopeTidakAktif($query)
     {
         return $query->where('status', false);
     }
 
-    // 🔹 Scope untuk mencari by nama atau NIM
+    // Search nama / NIM
     public function scopeSearch($query, $search)
     {
-        return $query->where('nama', 'like', "%{$search}%")
-                     ->orWhere('nim', 'like', "%{$search}%");
+        return $query->where(function ($q) use ($search) {
+            $q->where('nama', 'like', "%{$search}%")
+              ->orWhere('nim', 'like', "%{$search}%");
+        });
     }
 
-    // 🔹 Validasi unique NIM saat create
-    public static function boot()
+    /* ---------------------------------------------------
+     |  VALIDASI NIM UNIK
+     --------------------------------------------------- */
+
+    protected static function boot()
     {
         parent::boot();
 
         static::creating(function ($model) {
-            // Cek jika NIM sudah ada
             if (static::where('nim', $model->nim)->exists()) {
                 throw new \Exception('NIM sudah terdaftar');
             }
         });
 
         static::updating(function ($model) {
-            // Cek unique NIM kecuali untuk record ini
-            if (static::where('nim', $model->nim)->where('id_anggota_hima', '!=', $model->id_anggota_hima)->exists()) {
+            if (static::where('nim', $model->nim)
+                ->where('id_anggota_hima', '!=', $model->id_anggota_hima)
+                ->exists()
+            ) {
                 throw new \Exception('NIM sudah terdaftar');
             }
         });

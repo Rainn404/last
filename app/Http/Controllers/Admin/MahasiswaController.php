@@ -79,6 +79,10 @@ class MahasiswaController extends Controller
             'nim' => 'required|string|max:20|unique:mahasiswa,nim',
             'angkatan' => 'nullable|integer|min:2000|max:' . (date('Y') + 1),
             'status' => ['required', Rule::in(['Aktif', 'Non-Aktif', 'Cuti'])],
+            'ipk' => 'nullable|numeric|min:0|max:4',
+            'juara' => 'nullable|integer|in:1,3,5,7',
+            'tingkatan' => 'nullable|integer|in:1,3,5,7,9',
+            'keterangan' => 'nullable|integer|in:1,3',
         ], [
             'nama.required' => 'Nama mahasiswa wajib diisi',
             'nim.required' => 'NIM wajib diisi',
@@ -88,6 +92,8 @@ class MahasiswaController extends Controller
             'angkatan.max' => 'Angkatan tidak boleh lebih dari tahun depan',
             'status.required' => 'Status wajib dipilih',
             'status.in' => 'Status tidak valid',
+            'ipk.numeric' => 'IPK harus berupa angka',
+            'ipk.max' => 'IPK maksimal 4.00',
         ]);
 
         if ($validator->fails()) {
@@ -97,7 +103,7 @@ class MahasiswaController extends Controller
         }
 
         try {
-            Mahasiswa::create($request->only(['nama', 'nim', 'angkatan', 'status']));
+            Mahasiswa::create($request->only(['nama', 'nim', 'angkatan', 'status', 'ipk', 'juara', 'tingkatan', 'keterangan']));
 
             return redirect()->route('admin.mahasiswa.index')
                 ->with('success', 'Data mahasiswa berhasil ditambahkan');
@@ -138,6 +144,10 @@ class MahasiswaController extends Controller
             'nim' => ['required', 'string', 'max:20', Rule::unique('mahasiswa')->ignore($mahasiswa->id)],
             'angkatan' => 'nullable|integer|min:2000|max:' . (date('Y') + 1),
             'status' => ['required', Rule::in(['Aktif', 'Non-Aktif', 'Cuti'])],
+            'ipk' => 'nullable|numeric|min:0|max:4',
+            'juara' => 'nullable|integer|in:1,3,5,7',
+            'tingkatan' => 'nullable|integer|in:1,3,5,7,9',
+            'keterangan' => 'nullable|integer|in:1,3',
         ], [
             'nama.required' => 'Nama mahasiswa wajib diisi',
             'nim.required' => 'NIM wajib diisi',
@@ -147,6 +157,8 @@ class MahasiswaController extends Controller
             'angkatan.max' => 'Angkatan tidak boleh lebih dari tahun depan',
             'status.required' => 'Status wajib dipilih',
             'status.in' => 'Status tidak valid',
+            'ipk.numeric' => 'IPK harus berupa angka',
+            'ipk.max' => 'IPK maksimal 4.00',
         ]);
 
         if ($validator->fails()) {
@@ -156,7 +168,7 @@ class MahasiswaController extends Controller
         }
 
         try {
-            $mahasiswa->update($request->only(['nama', 'nim', 'angkatan', 'status']));
+            $mahasiswa->update($request->only(['nama', 'nim', 'angkatan', 'status', 'ipk', 'juara', 'tingkatan', 'keterangan']));
 
             return redirect()->route('admin.mahasiswa.index')
                 ->with('success', 'Data mahasiswa berhasil diperbarui');

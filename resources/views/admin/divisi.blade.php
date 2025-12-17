@@ -6,7 +6,7 @@
 <div class="fade-in-up">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="h3 fw-bold gradient-text mb-1">Data Divisi</h1>
+            <h1 class="h3 fw-bold gradient-text mb-1">Data Diviso</h1>
             <p class="text-muted">Kelola data divisi organisasi</p>
         </div>
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#divisiModal">

@@ -30,9 +30,14 @@ class Komentar extends Model
      * PK   : Id_berita (di berita)
      */
     public function berita()
-    {
-        return $this->belongsTo(\App\Models\Berita::class, 'berita_id', 'Id_berita');
-    }
+{
+    return $this->belongsTo(
+        \App\Models\Berita::class,
+        'berita_id',
+        'id_berita' // ✅ BENAR
+    );
+}
+
 
     /**
      * Accessor optional: jika nama kosong, tampilkan "Anonim"

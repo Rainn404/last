@@ -121,6 +121,105 @@
                             </div>
                         </div>
 
+                        <!-- SAW Fields Section -->
+                        <div class="mt-4 mb-4">
+                            <h5 class="text-primary mb-3"><i class="fas fa-calculator me-2"></i>Data untuk Perhitungan SAW</h5>
+                            <p class="text-muted small">Data berikut digunakan untuk perangkingan mahasiswa menggunakan metode SAW</p>
+                        </div>
+
+                        <div class="row">
+                            <!-- IPK Field -->
+                            <div class="col-md-3 mb-4">
+                                <label for="ipk" class="form-label fw-bold text-gray-700 mb-3">
+                                    IPK
+                                </label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    id="ipk"
+                                    name="ipk"
+                                    value="{{ old('ipk', $mahasiswa->ipk) }}"
+                                    class="form-control form-control-lg @error('ipk') is-invalid @enderror"
+                                    placeholder="0.00 - 4.00"
+                                    min="0"
+                                    max="4"
+                                >
+                                @error('ipk')
+                                    <div class="invalid-feedback d-block mt-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+
+                            <!-- Juara Field -->
+                            <div class="col-md-3 mb-4">
+                                <label for="juara" class="form-label fw-bold text-gray-700 mb-3">
+                                    Prestasi Juara
+                                </label>
+                                <select
+                                    id="juara"
+                                    name="juara"
+                                    class="form-select form-select-lg @error('juara') is-invalid @enderror"
+                                >
+                                    <option value="">Pilih...</option>
+                                    <option value="1" {{ old('juara', $mahasiswa->juara) == 1 ? 'selected' : '' }}>Anggota/Peserta</option>
+                                    <option value="3" {{ old('juara', $mahasiswa->juara) == 3 ? 'selected' : '' }}>Juara 3</option>
+                                    <option value="5" {{ old('juara', $mahasiswa->juara) == 5 ? 'selected' : '' }}>Juara 2</option>
+                                    <option value="7" {{ old('juara', $mahasiswa->juara) == 7 ? 'selected' : '' }}>Juara 1</option>
+                                </select>
+                                @error('juara')
+                                    <div class="invalid-feedback d-block mt-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+
+                            <!-- Tingkatan Field -->
+                            <div class="col-md-3 mb-4">
+                                <label for="tingkatan" class="form-label fw-bold text-gray-700 mb-3">
+                                    Tingkatan Lomba
+                                </label>
+                                <select
+                                    id="tingkatan"
+                                    name="tingkatan"
+                                    class="form-select form-select-lg @error('tingkatan') is-invalid @enderror"
+                                >
+                                    <option value="">Pilih...</option>
+                                    <option value="1" {{ old('tingkatan', $mahasiswa->tingkatan) == 1 ? 'selected' : '' }}>Internal Kampus</option>
+                                    <option value="3" {{ old('tingkatan', $mahasiswa->tingkatan) == 3 ? 'selected' : '' }}>Kabupaten/Kota</option>
+                                    <option value="5" {{ old('tingkatan', $mahasiswa->tingkatan) == 5 ? 'selected' : '' }}>Provinsi</option>
+                                    <option value="7" {{ old('tingkatan', $mahasiswa->tingkatan) == 7 ? 'selected' : '' }}>Nasional</option>
+                                    <option value="9" {{ old('tingkatan', $mahasiswa->tingkatan) == 9 ? 'selected' : '' }}>Internasional</option>
+                                </select>
+                                @error('tingkatan')
+                                    <div class="invalid-feedback d-block mt-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+
+                            <!-- Keterangan Field -->
+                            <div class="col-md-3 mb-4">
+                                <label for="keterangan" class="form-label fw-bold text-gray-700 mb-3">
+                                    Kategori
+                                </label>
+                                <select
+                                    id="keterangan"
+                                    name="keterangan"
+                                    class="form-select form-select-lg @error('keterangan') is-invalid @enderror"
+                                >
+                                    <option value="">Pilih...</option>
+                                    <option value="1" {{ old('keterangan', $mahasiswa->keterangan) == 1 ? 'selected' : '' }}>Non-Akademik</option>
+                                    <option value="3" {{ old('keterangan', $mahasiswa->keterangan) == 3 ? 'selected' : '' }}>Akademik</option>
+                                </select>
+                                @error('keterangan')
+                                    <div class="invalid-feedback d-block mt-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+                        </div>
+
                         <!-- Divider -->
                         <hr class="my-5">
 

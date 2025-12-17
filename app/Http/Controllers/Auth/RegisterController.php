@@ -17,30 +17,55 @@ class RegisterController extends Controller
 
     public function register(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
+        // =========================
+        // VALIDASI INPUT
+        // =========================
+        $request->validate(
+            [
+                'name'     => 'required|string|max:255',
+                'email'    => 'required|email|max:255|unique:users,email',
+                'password' => 'required|string|min:8|confirmed',
+            ],
+            [
+                'email.unique'      => 'Email sudah terdaftar.',
+                'password.confirmed'=> 'Konfirmasi kata sandi tidak cocok.',
+                'password.min'      => 'Kata sandi minimal 8 karakter.',
+            ]
+        );
 
-        // 🚫 Cegah email admin daftar lewat form publik
-        if ($request->email === 'admin@himati.com') {
-            return back()->withErrors([
-                'email' => 'Email ini tidak bisa digunakan untuk pendaftaran.',
-            ]);
+        // =========================
+        // BLOK EMAIL ADMIN / SYSTEM
+        // =========================
+        $blockedEmails = [
+            'superadmn.himati@gmail.com',
+            'tipolitalaa@gmail.com',
+        ];
+
+        if (in_array($request->email, $blockedEmails)) {
+            return back()
+                ->withErrors([
+                    'email' => 'Email ini tidak bisa digunakan untuk pendaftaran umum.',
+                ])
+                ->withInput();
         }
 
-        // Buat user baru
+        // =========================
+        // BUAT USER BARU (MAHASISWA)
+        // =========================
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
+            'name'     => $request->name,
+            'email'    => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'user', // default user biasa
+            'role'     => 'mahasiswa', // ⬅️ KONSISTEN
         ]);
 
-        // Login otomatis setelah register
+        // =========================
+        // LOGIN OTOMATIS
+        // =========================
         Auth::login($user);
 
-        return redirect()->route('dashboard')->with('success', 'Akun berhasil dibuat! Selamat datang di HIMA-TI 🎉');
+        return redirect()
+            ->route('dashboard')
+            ->with('success', 'Akun berhasil dibuat! Selamat datang di HIMA-TI 🎉');
     }
 }

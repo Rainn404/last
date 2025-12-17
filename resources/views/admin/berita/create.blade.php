@@ -43,18 +43,23 @@
 </div>
 
                 <div class="mb-3">
-                    <label for="foto" class="form-label">Foto</label>
-                    <input type="file" class="form-control @error('foto') is-invalid @enderror"
-                           id="foto" name="foto" accept="image/*">
-                    @error('foto') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
+    <label for="foto" class="form-label">Foto</label>
+    <input type="file"
+           class="form-control @error('foto') is-invalid @enderror"
+           id="foto"
+           name="foto"
+           accept="image/*">
+    @error('foto') <div class="invalid-feedback">{{ $message }}</div> @enderror
+</div>
 
-                <button type="submit" class="btn btn-success">
-                    <i class="fas fa-save me-2"></i> Simpan
-                </button>
+<button type="submit" class="btn btn-success">
+    <i class="fas fa-save me-2"></i> Simpan
+</button>
+
 <a href="{{ url('/admin/berita') }}" class="btn btn-secondary">
     <i class="fas fa-times me-1"></i> Batalkan
 </a>
+
             </form>
         </div>
     </div>

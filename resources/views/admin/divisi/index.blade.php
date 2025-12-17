@@ -12,16 +12,6 @@
         </a>
     </div>
 
-    <!-- Alert Messages -->
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    @endif
-
     @if(session('error'))
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             {{ session('error') }}
@@ -31,7 +21,7 @@
         </div>
     @endif
 
-    <!-- DataTales Example -->
+    <!-- DataTables Example -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-primary">Daftar Divisi</h6>
@@ -42,6 +32,7 @@
                     <thead>
                         <tr>
                             <th>No</th>
+                            <th style="display:none;">ID</th> {{-- Kolom ID tersembunyi --}}
                             <th>Nama Divisi</th>
                             <th>Ketua</th>
                             <th>Deskripsi</th>
@@ -53,6 +44,7 @@
                         @forelse($divisis as $key => $divisi)
                         <tr>
                             <td>{{ $key + 1 }}</td>
+                            <td style="display:none;">{{ $divisi->id_divisi }}</td> {{-- ID tersembunyi --}}
                             <td>{{ $divisi->nama_divisi }}</td>
                             <td>
                                 @if($divisi->ketua_divisi)
@@ -96,7 +88,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="6" class="text-center">Tidak ada data divisi</td>
+                            <td colspan="7" class="text-center">Tidak ada data divisi</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -120,10 +112,10 @@
             "language": {
                 "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Indonesian.json"
             },
-            "order": [[1, 'asc']], // Urutkan berdasarkan nama divisi
+            "order": [[1, 'asc']], // urut berdasarkan ID (kolom hidden index 1)
             "columnDefs": [
                 {
-                    "targets": [5], // Kolom aksi
+                    "targets": [5], // kolom aksi
                     "orderable": false,
                     "searchable": false
                 }

@@ -6,17 +6,22 @@
 
   <ul class="sidebar-nav list-unstyled px-2 mt-3">
     <li class="nav-item">
-      <a href="{{ route('home') }}" class="nav-link d-flex align-items-center {{ Request::routeIs('home') ? 'active' : '' }}">
+      <a href="{{ route('home') }}"
+         class="nav-link d-flex align-items-center {{ Request::routeIs('home') ? 'active' : '' }}">
         <i class="fas fa-home me-3"></i> Home
       </a>
     </li>
+
     <li class="nav-item">
-      <a href="{{ route('berita.index') }}" class="nav-link d-flex align-items-center {{ Request::routeIs('berita.*') ? 'active' : '' }}">
+      <a href="{{ route('berita.index') }}"
+         class="nav-link d-flex align-items-center {{ Request::routeIs('berita.*') ? 'active' : '' }}">
         <i class="fas fa-newspaper me-3"></i> Berita
       </a>
     </li>
+
     <li class="nav-item">
-      <a href="{{ route('pendaftaran.index') }}" class="nav-link d-flex align-items-center {{ Request::routeIs('pendaftaran.*') ? 'active' : '' }}">
+      <a href="{{ route('pendaftaran.index') }}"
+         class="nav-link d-flex align-items-center {{ Request::routeIs('pendaftaran.*') ? 'active' : '' }}">
         <i class="fas fa-user-check me-3"></i> Pendaftaran
       </a>
     </li>

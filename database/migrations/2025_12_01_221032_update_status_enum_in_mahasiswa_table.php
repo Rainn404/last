@@ -3,26 +3,31 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
-return new class extends Migration
+class UpdateStatusEnumInMahasiswaTable extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+    public function up()
     {
-        Schema::table('mahasiswa', function (Blueprint $table) {
-            $table->enum('status', ['Aktif', 'Non-Aktif', 'Cuti'])->default('Aktif')->change();
-        });
+        // FIX: pakai tabel 'mahasiswas'
+        if (Schema::hasTable('mahasiswas')) {
+            DB::statement("
+                ALTER TABLE mahasiswas 
+                MODIFY status ENUM('Aktif', 'Non-Aktif', 'Cuti') 
+                NOT NULL DEFAULT 'Aktif'
+            ");
+        }
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::table('mahasiswa', function (Blueprint $table) {
-            $table->enum('status', ['Aktif', 'Tidak Aktif'])->default('Aktif')->change();
-        });
+        // rollback aman (biarkan sama)
+        if (Schema::hasTable('mahasiswas')) {
+            DB::statement("
+                ALTER TABLE mahasiswas 
+                MODIFY status ENUM('Aktif', 'Non-Aktif', 'Cuti') 
+                NOT NULL DEFAULT 'Aktif'
+            ");
+        }
     }
-};
+}

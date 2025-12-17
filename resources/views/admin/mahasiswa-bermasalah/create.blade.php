@@ -23,21 +23,49 @@
                 <!-- Data Mahasiswa (Bisa Multiple) -->
                 <div class="mb-4">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="text-primary mb-0">
-                            <i class="fas fa-users me-2"></i>Data Mahasiswa
-                        </h5>
-                        <span class="badge bg-info text-white" id="mahasiswa-counter">1 Mahasiswa</span>
+                        <div>
+                            <h5 class="text-primary mb-0 d-inline">
+                                <i class="fas fa-users me-2"></i>Data Mahasiswa
+                            </h5>
+                            <small class="text-muted ms-2">
+                                (Jumlah: <span id="mahasiswa-counter">1</span>)
+                            </small>
+                        </div>
+                        <!-- Input Jumlah Mahasiswa - Kecil di samping -->
+                        <div class="d-flex align-items-center">
+                            <div class="me-2">
+                                <small class="text-muted me-2">Tambahkan:</small>
+                            </div>
+                            <div class="input-group input-group-sm" style="width: 170px;">
+                                <input type="number" id="jumlah-mahasiswa" 
+                                       class="form-control form-control-sm" 
+                                       min="1" max="20" 
+                                       value="1"
+                                       required>
+                                <button type="button" id="btn-tambah" class="btn btn-primary btn-sm">
+                                    Tambah
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="alert alert-info mb-3">
                         <i class="fas fa-info-circle me-2"></i>
-                        <small>Masukkan NIM mahasiswa dan sistem akan otomatis mengisi data lainnya. Klik tombol <i class="fas fa-plus text-success"></i> untuk menambah mahasiswa lainnya.</small>
+                        <small>Masukkan jumlah mahasiswa, klik "Tambah", kemudian isi data masing-masing mahasiswa. Sistem akan otomatis mengisi data lainnya ketika Anda memasukkan NIM.</small>
                     </div>
 
                     <div id="mahasiswa-container">
                         <!-- Item pertama -->
                         <div class="mahasiswa-item card mb-3 border-primary">
-                            <div class="card-body">
+                            <div class="card-body position-relative">
+                                <!-- Tombol hapus untuk item pertama (tersembunyi) -->
+                                <button type="button" class="btn-remove-item btn btn-sm btn-danger position-absolute top-0 end-0 m-2 d-none">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                
+                                <!-- Badge nomor -->
+                                <div class="mahasiswa-number">1</div>
+                                
                                 <div class="row g-3">
                                     <div class="col-md-4">
                                         <div class="form-group">
@@ -51,9 +79,6 @@
                                                        placeholder="Contoh: 123456789"
                                                        required
                                                        autocomplete="off">
-                                                <button type="button" class="btn btn-outline-success btn-add-mahasiswa">
-                                                    <i class="fas fa-plus"></i>
-                                                </button>
                                             </div>
                                             <div class="mt-2">
                                                 <small class="nim-status text-muted">Masukkan 9-10 digit NIM</small>
@@ -98,9 +123,9 @@
                                                 <span class="input-group-text bg-light">
                                                     <i class="fas fa-users text-primary"></i>
                                                 </span>
-                                                      <input type="text" name="mahasiswa[0][nama_orang_tua]" 
-                                                          class="form-control orangtua-input" 
-                                                          placeholder="Masukkan nama orang tua (Opsional)">
+                                                <input type="text" name="mahasiswa[0][nama_orang_tua]" 
+                                                       class="form-control orangtua-input" 
+                                                       placeholder="Masukkan nama orang tua (Opsional)">
                                             </div>
                                         </div>
                                     </div>
@@ -257,21 +282,70 @@
 .mahasiswa-item {
     border-left: 4px solid #4e73df !important;
     margin-bottom: 1rem;
+    position: relative;
 }
 
-.mahasiswa-item:not(:first-child) {
+.mahasiswa-item:nth-child(n+2) {
     border-left: 4px solid #1cc88a !important;
 }
 
-/* Button styling */
-.btn-add-mahasiswa:hover {
-    background-color: #1cc88a;
+/* Number badge for mahasiswa items */
+.mahasiswa-number {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    background: #4e73df;
     color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    z-index: 1;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.btn-remove-mahasiswa:hover {
-    background-color: #e74a3b;
-    color: white;
+.mahasiswa-item:nth-child(n+2) .mahasiswa-number {
+    background: #1cc88a;
+}
+
+/* Tombol hapus */
+.btn-remove-item {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.btn-remove-item:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* Input group untuk jumlah mahasiswa */
+.input-group.input-group-sm {
+    max-width: 170px;
+}
+
+#btn-tambah {
+    min-width: 70px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+#btn-tambah:hover {
+    background-color: #2e59d9;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Input groups */
@@ -313,6 +387,20 @@
     .col-md-4, .col-md-5, .col-md-3, .col-md-6 {
         margin-bottom: 1rem;
     }
+    
+    .d-flex.justify-content-between.align-items-center.mb-3 {
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+    
+    .d-flex.align-items-center {
+        margin-top: 0.5rem;
+        width: 100%;
+    }
+    
+    .input-group.input-group-sm {
+        max-width: 100%;
+    }
 }
 </style>
 
@@ -321,66 +409,10 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-// Periksa apakah jQuery sudah dimuat
-console.log('jQuery version:', $.fn.jquery);
-
-// Fungsi untuk memeriksa apakah Select2 tersedia
-function isSelect2Loaded() {
-    return typeof $.fn.select2 !== 'undefined';
-}
-
-// Fungsi untuk memuat Select2 secara dinamis jika belum dimuat
-function loadSelect2(callback) {
-    if (isSelect2Loaded()) {
-        console.log('Select2 sudah dimuat');
-        if (callback) callback();
-        return;
-    }
-    
-    console.log('Memuat Select2...');
-    
-    // Load CSS
-    var cssLink = document.createElement('link');
-    cssLink.rel = 'stylesheet';
-    cssLink.href = 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css';
-    document.head.appendChild(cssLink);
-    
-    // Load JS
-    var script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js';
-    script.onload = function() {
-        console.log('Select2 berhasil dimuat');
-        if (callback) callback();
-    };
-    script.onerror = function() {
-        console.error('Gagal memuat Select2');
-        // Fallback ke select biasa
-        enableEnhancedSelects();
-    };
-    document.head.appendChild(script);
-}
-
-// Fallback function jika Select2 tidak bisa dimuat
-function enableEnhancedSelects() {
-    console.log('Menggunakan select biasa dengan styling tambahan');
-    
-    // Tambahkan styling tambahan untuk select
-    $('.select-pelanggaran, .select-sanksi').each(function() {
-        $(this).addClass('enhanced-select');
-    });
-    
-    // Pastikan select bisa diklik
-    $('.select-pelanggaran, .select-sanksi').on('mousedown', function(e) {
-        console.log('Select diklik:', this.id);
-        // Biarkan event default berjalan
-    });
-}
-
-// Inisialisasi form
 $(document).ready(function() {
     console.log('Document ready - initializing form...');
     
-    // Coba muat Select2
+    // Load Select2 jika diperlukan
     loadSelect2(function() {
         if (isSelect2Loaded()) {
             initializeSelect2();
@@ -396,7 +428,30 @@ $(document).ready(function() {
     // Update counter
     function updateCounter() {
         const count = $('.mahasiswa-item').length;
-        $('#mahasiswa-counter').text(`${count} Mahasiswa${count > 1 ? ' (Banyak)' : ''}`);
+        $('#mahasiswa-counter').text(count);
+        
+        // Update jumlah input
+        $('#jumlah-mahasiswa').val(count);
+        
+        // Update tombol hapus
+        updateDeleteButtons();
+    }
+    
+    // Update tombol hapus (sembunyikan untuk item pertama jika hanya ada 1)
+    function updateDeleteButtons() {
+        const total = $('.mahasiswa-item').length;
+        
+        $('.mahasiswa-item').each(function(index) {
+            const $deleteBtn = $(this).find('.btn-remove-item');
+            
+            if (total <= 1) {
+                // Sembunyikan tombol hapus jika hanya ada 1 item
+                $deleteBtn.addClass('d-none');
+            } else {
+                // Tampilkan tombol hapus untuk semua item
+                $deleteBtn.removeClass('d-none');
+            }
+        });
     }
     
     // Function to search student by NIM
@@ -433,28 +488,21 @@ $(document).ready(function() {
                 success: function(data) {
                     console.log('Search response:', data);
 
-                    // Support two response shapes:
-                    // 1) { success: true, mahasiswa: { nama, semester, ... } }
-                    // 2) { success: true, nama: '...', semester: '...', ... }
                     if (data && data.success) {
                         const mhs = data.mahasiswa ? data.mahasiswa : data;
 
-                        // Fill name if available
                         if (mhs.nama) {
                             card.find('.nama-input').val(mhs.nama);
                         }
 
-                        // Auto-fill semester if available
                         if (mhs.semester) {
                             card.find('.semester-input').val(mhs.semester);
                         }
 
-                        // Auto-fill nama orang tua if available
                         if (mhs.nama_orang_tua) {
                             card.find('.orangtua-input').val(mhs.nama_orang_tua);
                         }
 
-                        // Update additional info
                         card.find('.prodi-info').text(mhs.prodi || mhs.jurusan || 'Tidak diketahui');
                         card.find('.angkatan-info').text(mhs.angkatan || 'Tidak diketahui');
                         card.find('.mahasiswa-info').removeClass('d-none');
@@ -462,7 +510,6 @@ $(document).ready(function() {
                         card.find('.nim-status').removeClass('text-info text-danger').addClass('text-success')
                             .html(`<i class="fas fa-check-circle me-1"></i>${mhs.nama || 'Ditemukan'}`);
 
-                        // Auto-focus next empty field
                         if (!card.find('.semester-input').val()) {
                             setTimeout(() => card.find('.semester-input').focus(), 100);
                         }
@@ -488,12 +535,10 @@ $(document).ready(function() {
     function setupNIMSearch(nimInput) {
         const card = nimInput.closest('.mahasiswa-item');
         
-        // Search on input change
         nimInput.off('input').on('input', function() {
             searchStudentByNIM($(this), $(card));
         });
         
-        // Search on paste
         nimInput.off('paste').on('paste', function() {
             setTimeout(() => {
                 searchStudentByNIM($(this), $(card));
@@ -501,16 +546,73 @@ $(document).ready(function() {
         });
     }
     
-    // Setup for first NIM input
-    setupNIMSearch($('.nim-input').first());
+    // Setup for all existing NIM inputs
+    $('.nim-input').each(function() {
+        setupNIMSearch($(this));
+    });
     
-    // Add new student
-    $(document).on('click', '.btn-add-mahasiswa', function() {
-        const lastItem = $('.mahasiswa-item').last();
-        const newIndex = mahasiswaCount++;
+    // Tambah form berdasarkan jumlah mahasiswa
+    $('#btn-tambah').on('click', function() {
+        const jumlah = parseInt($('#jumlah-mahasiswa').val());
         
-        // Clone item
-        const newItem = lastItem.clone();
+        if (jumlah < 1 || jumlah > 20 || isNaN(jumlah)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Jumlah Tidak Valid',
+                text: 'Masukkan jumlah antara 1-20',
+                confirmButtonColor: '#e74a3b'
+            });
+            return;
+        }
+        
+        const currentCount = $('.mahasiswa-item').length;
+        
+        if (jumlah <= currentCount) {
+            // Jika jumlah kurang dari atau sama dengan yang ada, hapus kelebihan
+            if (jumlah < currentCount) {
+                Swal.fire({
+                    title: 'Kurangi Jumlah?',
+                    text: `Anda akan mengurangi jumlah mahasiswa dari ${currentCount} menjadi ${jumlah}. Lanjutkan?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Kurangi',
+                    cancelButtonText: 'Batal',
+                    confirmButtonColor: '#e74a3b',
+                    cancelButtonColor: '#6c757d'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Remove excess items
+                        for (let i = currentCount - 1; i >= jumlah; i--) {
+                            $(`.mahasiswa-item:eq(${i})`).remove();
+                        }
+                        reindexForm();
+                        updateCounter();
+                    }
+                });
+            }
+            return;
+        }
+        
+        // Add new items
+        for (let i = currentCount; i < jumlah; i++) {
+            addMahasiswaItem(i);
+        }
+        updateCounter();
+        
+        // Beri feedback visual
+        const $btn = $(this);
+        const originalText = $btn.text();
+        $btn.text('Ditambahkan!').addClass('btn-success').removeClass('btn-primary');
+        
+        setTimeout(function() {
+            $btn.text(originalText).addClass('btn-primary').removeClass('btn-success');
+        }, 1000);
+    });
+    
+    // Function to add a new mahasiswa item
+    function addMahasiswaItem(index) {
+        const firstItem = $('.mahasiswa-item').first();
+        const newItem = firstItem.clone();
         
         // Reset values
         newItem.find('input').val('');
@@ -522,20 +624,20 @@ $(document).ready(function() {
         
         // Update names with new index
         newItem.find('[name]').each(function() {
-            const name = $(this).attr('name').replace(/\[\d+\]/, `[${newIndex}]`);
+            const name = $(this).attr('name').replace(/\[\d+\]/, `[${index}]`);
             $(this).attr('name', name);
         });
         
-        // Update card border color
-        newItem.removeClass('border-primary').addClass('border-success');
+        // Update card border color for non-first items
+        if (index > 0) {
+            newItem.removeClass('border-primary').addClass('border-success');
+        }
         
-        // Update buttons
-        newItem.find('.btn-add-mahasiswa')
-            .removeClass('btn-outline-success')
-            .addClass('btn-outline-danger')
-            .html('<i class="fas fa-trash"></i>')
-            .removeClass('btn-add-mahasiswa')
-            .addClass('btn-remove-mahasiswa');
+        // Update number badge
+        newItem.find('.mahasiswa-number').text(index + 1);
+        
+        // Show delete button
+        newItem.find('.btn-remove-item').removeClass('d-none');
         
         // Setup NIM search for new input
         const newNimInput = newItem.find('.nim-input');
@@ -545,25 +647,28 @@ $(document).ready(function() {
         $('#mahasiswa-container').append(newItem);
         
         // Focus on new NIM input
-        newNimInput.focus();
-        
-        updateCounter();
-        updateButtonStates();
-    });
+        setTimeout(() => newNimInput.focus(), 100);
+    }
     
-    // Remove student with confirmation
-    $(document).on('click', '.btn-remove-mahasiswa', function() {
-        const $btn = $(this);
+    // Handle delete button click
+    $(document).on('click', '.btn-remove-item', function() {
+        const $item = $(this).closest('.mahasiswa-item');
+        const itemNumber = $item.find('.mahasiswa-number').text();
         const total = $('.mahasiswa-item').length;
-
+        
         if (total <= 1) {
-            // Never remove the last item
+            Swal.fire({
+                icon: 'warning',
+                title: 'Tidak Dapat Menghapus',
+                text: 'Minimal harus ada 1 mahasiswa',
+                confirmButtonColor: '#6c757d'
+            });
             return;
         }
-
+        
         Swal.fire({
             title: 'Hapus Mahasiswa?',
-            text: 'Baris mahasiswa ini akan dihapus. Lanjutkan?',
+            html: `Anda akan menghapus mahasiswa <b>#${itemNumber}</b>.<br>Data yang sudah diisi akan hilang.`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Ya, Hapus',
@@ -572,10 +677,12 @@ $(document).ready(function() {
             cancelButtonColor: '#6c757d'
         }).then((result) => {
             if (result.isConfirmed) {
-                $btn.closest('.mahasiswa-item').remove();
+                $item.remove();
                 reindexForm();
                 updateCounter();
-                updateButtonStates();
+                
+                // Update jumlah input
+                $('#jumlah-mahasiswa').val($('.mahasiswa-item').length);
             }
         });
     });
@@ -587,72 +694,18 @@ $(document).ready(function() {
                 const name = $(this).attr('name').replace(/\[\d+\]/, `[${index}]`);
                 $(this).attr('name', name);
             });
+            
+            // Update number badge
+            $(this).find('.mahasiswa-number').text(index + 1);
+            
+            // Update border color
+            if (index === 0) {
+                $(this).removeClass('border-success').addClass('border-primary');
+            } else {
+                $(this).removeClass('border-primary').addClass('border-success');
+            }
         });
         mahasiswaCount = $('.mahasiswa-item').length;
-    }
-    
-    // Update button states: ensure last row shows add (+) and other rows show remove (trash).
-    function updateButtonStates() {
-        const items = $('.mahasiswa-item');
-
-        items.each(function(index) {
-            const isLast = index === items.length - 1;
-            let $addBtn = $(this).find('.btn-add-mahasiswa');
-            let $removeBtn = $(this).find('.btn-remove-mahasiswa');
-
-            // If neither button exists (defensive), try to find any button in the input-group
-            if ($addBtn.length === 0 && $removeBtn.length === 0) {
-                const $anyBtn = $(this).find('.input-group .btn').first();
-                if ($anyBtn.length) {
-                    // Normalize it to an add or remove depending on position
-                    if (isLast) {
-                        $anyBtn.removeClass('btn-remove-mahasiswa btn-outline-danger').addClass('btn-add-mahasiswa btn-outline-success').html('<i class="fas fa-plus"></i>');
-                        $addBtn = $anyBtn;
-                    } else {
-                        $anyBtn.removeClass('btn-add-mahasiswa btn-outline-success').addClass('btn-remove-mahasiswa btn-outline-danger').html('<i class="fas fa-trash"></i>');
-                        $removeBtn = $anyBtn;
-                    }
-                }
-            }
-
-            if (isLast) {
-                // Ensure there is an add button on the last item
-                if ($addBtn.length === 0 && $removeBtn.length > 0) {
-                    // convert remove to add
-                    $removeBtn.removeClass('btn-remove-mahasiswa btn-outline-danger').addClass('btn-add-mahasiswa btn-outline-success').html('<i class="fas fa-plus"></i>');
-                    $addBtn = $removeBtn;
-                    $removeBtn = $();
-                }
-
-                if ($addBtn.length === 0) {
-                    // create add button and append to input-group
-                    const $newAdd = $("<button type='button' class='btn btn-outline-success btn-add-mahasiswa'><i class='fas fa-plus'></i></button>");
-                    $(this).find('.input-group').append($newAdd);
-                    $addBtn = $newAdd;
-                }
-
-                $addBtn.removeClass('d-none').removeClass('btn-outline-danger').addClass('btn-outline-success');
-                if ($removeBtn && $removeBtn.length) $removeBtn.addClass('d-none');
-            } else {
-                // Ensure there is a remove button on non-last items
-                if ($removeBtn.length === 0 && $addBtn.length > 0) {
-                    // convert add to remove
-                    $addBtn.removeClass('btn-add-mahasiswa btn-outline-success').addClass('btn-remove-mahasiswa btn-outline-danger').html('<i class="fas fa-trash"></i>');
-                    $removeBtn = $addBtn;
-                    $addBtn = $();
-                }
-
-                if ($removeBtn.length === 0) {
-                    // create remove button and append to input-group
-                    const $newRemove = $("<button type='button' class='btn btn-outline-danger btn-remove-mahasiswa'><i class='fas fa-trash'></i></button>");
-                    $(this).find('.input-group').append($newRemove);
-                    $removeBtn = $newRemove;
-                }
-
-                $removeBtn.removeClass('d-none').removeClass('btn-outline-success').addClass('btn-outline-danger');
-                if ($addBtn && $addBtn.length) $addBtn.addClass('d-none');
-            }
-        });
     }
     
     // Form validation
@@ -668,7 +721,6 @@ $(document).ready(function() {
             const nim = card.find('.nim-input').val().trim();
             const nama = card.find('.nama-input').val().trim();
             const semester = card.find('.semester-input').val().trim();
-            const orangTua = card.find('.orangtua-input').val().trim();
             const nimStatus = card.find('.nim-status');
             
             // Validate NIM
@@ -709,8 +761,6 @@ $(document).ready(function() {
                 card.find('.semester-input').focus();
                 return false;
             }
-            
-            // Nama orang tua is optional now; no client-side required check
         });
         
         // Validate violation data
@@ -734,7 +784,6 @@ $(document).ready(function() {
             $('#sanksi-select').css('border-color', '#d1d3e2');
         }
         
-        // Deskripsi is optional; if provided enforce minimum length
         if (deskripsi && deskripsi.length < 20) {
             isValid = false;
             errors.push('Deskripsi pelanggaran minimal 20 karakter');
@@ -764,7 +813,6 @@ $(document).ready(function() {
             cancelButtonColor: '#6c757d'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Show loading
                 Swal.fire({
                     title: 'Menyimpan Data',
                     text: 'Harap tunggu...',
@@ -774,7 +822,6 @@ $(document).ready(function() {
                     }
                 });
                 
-                // Submit form
                 this.submit();
             }
         });
@@ -782,16 +829,47 @@ $(document).ready(function() {
     
     // Initialize
     updateCounter();
-    updateButtonStates();
     console.log('Form initialization complete');
 });
 
-// Function to initialize Select2 if available
-function initializeSelect2() {
-    console.log('Initializing Select2...');
+// Fungsi untuk memeriksa apakah Select2 tersedia
+function isSelect2Loaded() {
+    return typeof $.fn.select2 !== 'undefined';
+}
+
+// Fungsi untuk memuat Select2 secara dinamis
+function loadSelect2(callback) {
+    if (isSelect2Loaded()) {
+        if (callback) callback();
+        return;
+    }
     
+    // Load CSS
+    var cssLink = document.createElement('link');
+    cssLink.rel = 'stylesheet';
+    cssLink.href = 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css';
+    document.head.appendChild(cssLink);
+    
+    // Load JS
+    var script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js';
+    script.onload = function() {
+        if (callback) callback();
+    };
+    script.onerror = function() {
+        enableEnhancedSelects();
+    };
+    document.head.appendChild(script);
+}
+
+// Fallback function
+function enableEnhancedSelects() {
+    $('.select-pelanggaran, .select-sanksi').addClass('enhanced-select');
+}
+
+// Function to initialize Select2
+function initializeSelect2() {
     try {
-        // Initialize Select2
         $('#pelanggaran-select').select2({
             theme: 'classic',
             width: '100%',
@@ -807,11 +885,8 @@ function initializeSelect2() {
             allowClear: false,
             dropdownParent: $('body')
         });
-        
-        console.log('Select2 initialized successfully');
     } catch (error) {
         console.error('Error initializing Select2:', error);
-        // Fallback to regular select
         $('.select-pelanggaran, .select-sanksi').addClass('enhanced-select');
     }
 }

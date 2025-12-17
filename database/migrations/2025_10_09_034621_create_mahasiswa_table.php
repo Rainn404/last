@@ -8,7 +8,8 @@ class CreateMahasiswaTable extends Migration
 {
     public function up()
     {
-        Schema::create('mahasiswa', function (Blueprint $table) {
+        // FIX: pakai tabel 'mahasiswas' (standar Laravel)
+        Schema::create('mahasiswas', function (Blueprint $table) {
             $table->id();
             $table->string('nim')->unique();
             $table->string('nama');
@@ -19,6 +20,7 @@ class CreateMahasiswaTable extends Migration
 
     public function down()
     {
-        Schema::dropIfExists('mahasiswa');
+        // FIX: konsisten dengan nama tabel di atas
+        Schema::dropIfExists('mahasiswas');
     }
 }

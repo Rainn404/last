@@ -9,29 +9,33 @@ use App\Models\AnggotaHima;
 
 class DivisiController extends Controller
 {
-    // Halaman publik divisi
+    // ============================
+    // PUBLIC HALAMAN LIST DIVISI
+    // ============================
     public function publicIndex()
     {
-        $divisis = Divisi::where('status', 1)
-            ->withCount('anggotaHima') // TAMBAHKAN INI
-            ->orderBy('nama_divisi')
+        $divisis = Divisi::where('status', true)
+            ->withCount('anggotaHima')
+            ->orderBy('id_divisi', 'ASC') // <-- PERBAIKAN
             ->get();
 
         return view('divisi', compact('divisis'));
     }
 
-    // Menampilkan detail divisi publik
+    // ============================
+    // PUBLIC DETAIL DIVISI
+    // ============================
     public function publicShow(string $id)
     {
-        $divisis = Divisi::where('status', 1)
-            ->withCount('anggotaHima') // TAMBAHKAN INI
-            ->with(['anggotaHima' => function($query) {
-                $query->where('status', true)
-                      ->with('jabatan');
+        $divisi = Divisi::where('status', true)
+            ->withCount('anggotaHima')
+            ->with(['anggotaHima' => function ($query) {
+                $query->where('status', true)->with('jabatan');
             }])
-            ->find($id);
+            ->where('id_divisi', $id)
+            ->first();
 
-        if (!$divisis) {
+        if (!$divisi) {
             return redirect()->route('divisi')
                 ->with('error', 'Data divisi tidak ditemukan.');
         }
@@ -39,23 +43,29 @@ class DivisiController extends Controller
         return view('divisi-detail', compact('divisi'));
     }
 
-    // Menampilkan daftar divisi di admin
+    // ============================
+    // ADMIN LIST DIVISI
+    // ============================
     public function index()
     {
-        $divisis = Divisi::withCount('anggotaHima') // TAMBAHKAN INI
-            ->orderBy('nama_divisi')
+        $divisis = Divisi::withCount('anggotaHima')
+            ->orderBy('id_divisi', 'ASC') // <-- PERBAIKAN
             ->get();
-            
-        return view('admin.divisi', compact('divisi'));
+
+        return view('admin.divisi.index', compact('divisis'));
     }
 
-    // Menampilkan form create
+    // ============================
+    // ADMIN CREATE PAGE
+    // ============================
     public function create()
     {
         return view('admin.divisi.create');
     }
 
-    // Menyimpan data baru
+    // ============================
+    // ADMIN STORE
+    // ============================
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -66,7 +76,7 @@ class DivisiController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()
+            return back()
                 ->withErrors($validator)
                 ->withInput()
                 ->with('error', 'Terjadi kesalahan validasi data.');
@@ -76,7 +86,7 @@ class DivisiController extends Controller
             'nama_divisi'   => $request->nama_divisi,
             'ketua_divisi'  => $request->ketua_divisi,
             'deskripsi'     => $request->deskripsi,
-            'status'        => true,
+            'status'        => 1,
             'color'         => $request->color ?? '#1a73e8',
         ]);
 
@@ -84,11 +94,13 @@ class DivisiController extends Controller
             ->with('success', 'Divisi baru berhasil ditambahkan!');
     }
 
-    // Menampilkan detail divisi di admin
+    // ============================
+    // ADMIN SHOW DETAIL DIVISI
+    // ============================
     public function show(string $id)
     {
-        $divisi = Divisi::withCount('anggotaHima') // TAMBAHKAN INI
-            ->with(['anggotaHima' => function($query) {
+        $divisi = Divisi::withCount('anggotaHima')
+            ->with(['anggotaHima' => function ($query) {
                 $query->with('jabatan');
             }])
             ->find($id);
@@ -101,7 +113,9 @@ class DivisiController extends Controller
         return view('admin.divisi.view', compact('divisi'));
     }
 
-    // Menampilkan form edit
+    // ============================
+    // ADMIN EDIT FORM
+    // ============================
     public function edit(string $id)
     {
         $divisi = Divisi::find($id);
@@ -114,7 +128,9 @@ class DivisiController extends Controller
         return view('admin.divisi.edit', compact('divisi'));
     }
 
-    // Update data
+    // ============================
+    // ADMIN UPDATE
+    // ============================
     public function update(Request $request, string $id)
     {
         $divisi = Divisi::find($id);
@@ -133,7 +149,7 @@ class DivisiController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()
+            return back()
                 ->withErrors($validator)
                 ->withInput()
                 ->with('error', 'Terjadi kesalahan validasi.');
@@ -151,7 +167,9 @@ class DivisiController extends Controller
             ->with('success', 'Data divisi berhasil diperbarui!');
     }
 
-    // Hapus data
+    // ============================
+    // ADMIN DELETE
+    // ============================
     public function destroy(string $id)
     {
         $divisi = Divisi::find($id);
@@ -161,11 +179,9 @@ class DivisiController extends Controller
                 ->with('error', 'Data divisi tidak ditemukan.');
         }
 
-        // Cek apakah divisi memiliki anggota
-        $jumlahAnggota = $divisi->anggotaHima()->count();
-        if ($jumlahAnggota > 0) {
+        if ($divisi->anggotaHima()->count() > 0) {
             return redirect()->route('admin.divisi.index')
-                ->with('error', 'Tidak dapat menghapus divisi yang masih memiliki anggota. Pindahkan atau hapus anggota terlebih dahulu.');
+                ->with('error', 'Tidak dapat menghapus divisi yang masih memiliki anggota.');
         }
 
         $divisi->delete();
