@@ -11,14 +11,17 @@ class Divisi extends Model
 
     protected $table = 'divisis';
     protected $primaryKey = 'id_divisi';
-    
+    public $incrementing = true;
+    protected $keyType = 'int';
+    public $timestamps = true;
+
+    // Fillable properties untuk mass assignment
     protected $fillable = [
         'nama_divisi',
-        'ketua_divisi', // ini adalah string/nama ketua
-        'deskripsi'
+        'ketua_divisi',
+        'deskripsi',
+        'status',
     ];
-
-    public $timestamps = true;
 
     // Relationship ke AnggotaHima
     public function anggotaHima()

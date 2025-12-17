@@ -1,10 +1,33 @@
-@extends('layouts.admin.app')
+@php $layout = request()->is('admin-panel/*') ? 'layouts.admin-panel.app' : 'layouts.admin.app'; @endphp
+@extends($layout)
 
 @section('title', 'Kelola Pendaftaran - HIMA Sistem Manajemen')
 
 @section('content')
 
 <div class="container-fluid">
+    <script>
+        // Ensure clicks using inline onclick won't fail if real function loads later.
+        if (typeof window.openChangeStatus !== 'function') {
+            window.openChangeStatus = function(id, status) {
+                // Try to defer to real implementation when available
+                if (typeof window._openChangeStatus === 'function') {
+                    return window._openChangeStatus(id, status);
+                }
+                console.warn('openChangeStatus called before implementation is ready; deferring...');
+                const tryInvoke = () => {
+                    if (typeof window._openChangeStatus === 'function') {
+                        window._openChangeStatus(id, status);
+                    } else {
+                        // final fallback: show modal error
+                        alert('Fungsi belum siap. Silakan tunggu beberapa saat lalu coba lagi.');
+                    }
+                };
+                // attempt after short delay to allow other scripts to initialize
+                setTimeout(tryInvoke, 300);
+            };
+        }
+    </script>
     <!-- Header Section -->
     <div class="row mb-4">
         <div class="col-12">
@@ -28,46 +51,6 @@
     </div>
 
                 <!-- Modal Change Status -->
-                <div class="modal fade" id="changeStatusModal" tabindex="-1">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title"><i class="fas fa-exchange-alt me-2"></i>Ubah Status Pendaftaran</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                            </div>
-                            <form id="changeStatusForm" method="POST">
-                                @csrf
-                                <div class="modal-body">
-                                    <div class="mb-3">
-                                        <label for="status_select" class="form-label">Status</label>
-                                        <select id="status_select" name="status" class="form-select" required>
-                                            <option value="submitted">submitted</option>
-                                            <option value="verifying">verifying</option>
-                                            <option value="interview">interview</option>
-                                            <option value="accepted">accepted</option>
-                                            <option value="rejected">rejected</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="mb-3" id="interviewDateGroup" style="display:none;">
-                                        <label for="interview_date" class="form-label">Interview Date</label>
-                                        <input type="datetime-local" id="interview_date" name="interview_date" class="form-control">
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="status_notes" class="form-label">Notes</label>
-                                        <textarea id="status_notes" name="notes" class="form-control" rows="3"></textarea>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                                    <button type="submit" class="btn btn-primary">Simpan</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
     <!-- Pengaturan Periode dan Kontrol -->
     <div class="card mb-4">
         <div class="card-header bg-primary text-white">
@@ -290,6 +273,10 @@
                                 <i class="fas fa-clock me-1"></i>Pending 
                                 <span class="badge bg-warning ms-1">{{ $stats['pendingCount'] }}</span>
                             </button>
+                            <button class="nav-link" onclick="filterPendaftaran('interview')">
+                                <i class="fas fa-comments me-1"></i>Interview 
+                                <span class="badge bg-info ms-1">{{ $stats['interviewCount'] }}</span>
+                            </button>
                             <button class="nav-link" onclick="filterPendaftaran('diterima')">
                                 <i class="fas fa-check me-1"></i>Diterima 
                                 <span class="badge bg-success ms-1">{{ $stats['diterimaCount'] }}</span>
@@ -314,6 +301,36 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Action Buttons (hanya untuk pending) -->
+    <div id="bulkActionSection" class="card mb-4" style="display: none;">
+        <div class="card-body">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fas fa-info-circle text-info"></i>
+                <span class="text-muted">Filter sedang menampilkan data <strong>Pending</strong></span>
+            </div>
+            <div class="mt-3">
+                <button class="btn btn-info" onclick="showBulkInterviewModal()">
+                    <i class="fas fa-calendar-check me-2"></i>Jadwalkan Interview Massal
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Action Buttons (hanya untuk interview) -->
+    <div id="bulkAcceptSection" class="card mb-4" style="display: none;">
+        <div class="card-body">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fas fa-info-circle text-success"></i>
+                <span class="text-muted">Filter sedang menampilkan data <strong>Interview</strong></span>
+            </div>
+            <div class="mt-3">
+                <button class="btn btn-success" onclick="showBulkAcceptModal()">
+                    <i class="fas fa-user-check me-2"></i>Terima Massal
+                </button>
             </div>
         </div>
     </div>
@@ -347,70 +364,57 @@
             </h5>
         </div>
         <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0" id="pendaftaranTable">
+            <div class="table-responsive" data-table-content>
+                <table class="table table-hover table-sm mb-0" id="pendaftaranTable">
                     <thead class="table-light">
                         <tr>
-                            <th width="50">#</th>
+                            <th width="40">#</th>
                             <th>Pendaftar</th>
                             <th>NIM</th>
+                            <th>Divisi</th>
                             <th>Semester</th>
                             <th>Kontak</th>
-                            <th>Alasan</th>
-                            <th>Dokumen</th>
                             <th>Status</th>
-                            <th width="150" class="text-center">Aksi</th>
+                            <th width="120" class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($pendaftaran as $index => $item)
                         <tr class="pendaftaran-row" data-status="{{ $item->status_pendaftaran }}" data-search="{{ strtolower($item->nama . ' ' . $item->nim) }}">
-                            <td class="ps-3">{{ $index + 1 }}</td>
+                            <td class="ps-3">{{ ($pendaftaran->currentPage() - 1) * $pendaftaran->perPage() + $loop->iteration }}</td>
                             <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="avatar bg-primary rounded-circle d-flex align-items-center justify-content-center me-3">
-                                        <i class="fas fa-user text-white"></i>
+                                <div class="d-flex align-items-center" style="max-width: 200px;">
+                                    <div class="avatar bg-primary rounded-circle d-flex align-items-center justify-content-center me-2" style="min-width: 32px; min-height: 32px;">
+                                        <i class="fas fa-user text-white" style="font-size: 12px;"></i>
                                     </div>
-                                    <div>
-                                        <strong class="d-block truncate" title="{{ $item->nama }}">{{ $item->nama }}</strong>
-                                        <small class="text-muted truncate" title="{{ $item->created_at->format('d M Y H:i') }}">{{ $item->created_at->format('d M Y H:i') }}</small>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <code class="nim-code">{{ $item->nim }}</code>
-                            </td>
-                            <td>
-                                <span class="badge semester-badge">S{{ $item->semester }}</span>
-                            </td>
-                            <td>
-                                <div class="contact-info">
-                                    <div class="phone">
-                                        <i class="fas fa-phone me-1"></i> 
-                                        <small class="truncate" title="{{ $item->no_hp ?? '-' }}">{{ $item->no_hp ?? '-' }}</small>
-                                    </div>
-                                    <div class="email">
-                                        <i class="fas fa-envelope me-1"></i> 
-                                        <small class="truncate" title="{{ $item->user->email ?? '-' }}">{{ $item->user->email ?? '-' }}</small>
+                                    <div style="overflow: hidden;">
+                                        <strong class="d-block truncate" title="{{ $item->nama }}" style="font-size: 14px;">{{ Str::limit($item->nama, 20) }}</strong>
+                                        <small class="text-muted truncate" title="{{ $item->created_at->format('d M Y H:i') }}" style="display: block; font-size: 11px;">{{ $item->created_at->format('d M Y') }}</small>
                                     </div>
                                 </div>
                             </td>
-                            <td class="text-truncate" style="max-width:220px;">
-                                <div class="alasan-text truncate" data-bs-toggle="tooltip" title="{{ $item->alasan_mendaftar }}">
-                                    {{ Str::limit($item->alasan_mendaftar, 60) }}
-                                </div>
+                            <td>
+                                <code class="nim-code" style="font-size: 12px;">{{ $item->nim }}</code>
                             </td>
                             <td>
-                                @if($item->dokumen)
-                                <a href="{{ asset('storage/' . $item->dokumen) }}" 
-                                   target="_blank" 
-                                   class="btn btn-sm btn-outline-primary doc-btn"
-                                   data-bs-toggle="tooltip" title="Lihat Dokumen">
-                                    <i class="fas fa-file-pdf"></i>
-                                </a>
+                                @if($item->divisi)
+                                    <span class="badge bg-info" title="{{ $item->divisi->nama_divisi }}">
+                                        {{ Str::limit($item->divisi->nama_divisi, 12) }}
+                                    </span>
                                 @else
-                                <span class="text-muted">-</span>
+                                    <span class="text-muted" style="font-size: 12px;">-</span>
                                 @endif
+                            </td>
+                            <td>
+                                <span class="badge semester-badge" style="font-size: 11px;">S{{ $item->semester }}</span>
+                            </td>
+                            <td>
+                                <div class="contact-info" style="font-size: 12px;">
+                                    <div class="phone">
+                                        <i class="fas fa-phone me-1" style="font-size: 10px;"></i> 
+                                        <small class="truncate" title="{{ $item->no_hp ?? '-' }}" style="display: block; max-width: 100px;">{{ Str::limit($item->no_hp ?? '-', 12) }}</small>
+                                    </div>
+                                </div>
                             </td>
                             <td>
                                 @php
@@ -420,41 +424,35 @@
                                     if ($status === 'submitted') { $badgeClass = 'badge bg-secondary'; $icon = 'fa-circle'; }
                                     elseif ($status === 'verifying') { $badgeClass = 'badge bg-primary'; $icon = 'fa-spinner'; }
                                     elseif ($status === 'interview') { $badgeClass = 'badge bg-warning text-dark'; $icon = 'fa-comments'; }
-                                    elseif ($status === 'accepted') { $badgeClass = 'badge bg-success'; $icon = 'fa-check'; }
-                                    elseif ($status === 'rejected') { $badgeClass = 'badge bg-danger'; $icon = 'fa-times'; }
+                                    elseif ($status === 'diterima') { $badgeClass = 'badge bg-success'; $icon = 'fa-check'; }
+                                    elseif ($status === 'ditolak') { $badgeClass = 'badge bg-danger'; $icon = 'fa-times'; }
                                 @endphp
-                                <span class="status-badge {{ $badgeClass }}">
+                                <span class="status-badge {{ $badgeClass }}" style="font-size: 11px;">
                                     <i class="fas {{ $icon }} me-1"></i>
                                     {{ ucfirst($status) }}
                                 </span>
-                                @if($item->validator && $item->status_pendaftaran != 'submitted')
-                                <br>
-                                <small class="text-muted">Oleh: {{ $item->validator->name ?? 'Admin' }}</small>
-                                @endif
                             </td>
-                            <td class="text-center pe-3">
+                            <td class="text-center pe-2">
                                 <div class="action-buttons">
-                                        <button class="btn btn-sm btn-outline-info action-btn" 
-                                            onclick="viewDetail({{ $item->id_pendaftaran }})"
-                                            data-bs-toggle="tooltip" title="Detail">
+                                    <button class="btn btn-sm btn-outline-info" 
+                                        onclick="viewDetail({{ $item->id_pendaftaran }})"
+                                        data-bs-toggle="tooltip" title="Detail"
+                                        style="padding: 4px 8px; font-size: 12px;">
                                         <i class="fas fa-eye"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-outline-secondary action-btn" 
+                                    <button class="btn btn-sm btn-outline-warning" 
                                             onclick="openChangeStatus({{ $item->id_pendaftaran }}, '{{ $item->status_pendaftaran }}')"
-                                            data-bs-toggle="tooltip" title="Ubah Status">
+                                            data-bs-toggle="tooltip" title="Ubah Status"
+                                            style="padding: 4px 8px; font-size: 12px;">
                                         <i class="fas fa-exchange-alt"></i>
-                                    </button>
-                                        <button class="btn btn-sm btn-outline-warning action-btn" 
-                                            onclick="editPendaftaran({{ $item->id_pendaftaran }})"
-                                            data-bs-toggle="tooltip" title="Edit">
-                                        <i class="fas fa-edit"></i>
                                     </button>
                                     <form action="{{ route('admin.pendaftaran.destroy', ['pendaftaran' => $item->id_pendaftaran]) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger action-btn" 
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" 
                                                 data-bs-toggle="tooltip" title="Hapus"
-                                                onclick="return confirm('Apakah Anda yakin ingin menghapus pendaftaran ini?')">
+                                                onclick="return confirm('Yakin hapus?')"
+                                                style="padding: 4px 8px; font-size: 12px;">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
@@ -463,7 +461,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="9" class="text-center py-5">
+                            <td colspan="8" class="text-center py-5">
                                 <div class="empty-state">
                                     <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
                                     <h5 class="text-muted">Belum ada data pendaftaran</h5>
@@ -475,20 +473,40 @@
                     </tbody>
                 </table>
             </div>
-        </div>
-    </div>
+            
+            <!-- Pagination inside card body -->
+            @if($pendaftaran->hasPages())
+            <div class="d-flex justify-content-between align-items-center p-3" style="border-top: 1px solid #dee2e6; gap: 1rem;">
+                <div class="text-muted small">
+                    Menampilkan {{ $pendaftaran->firstItem() }} - {{ $pendaftaran->lastItem() }} dari {{ $pendaftaran->total() }} data
+                </div>
+                <nav aria-label="Page navigation" style="margin: 0;">
+                    <ul class="pagination pagination-sm mb-0" style="gap: 2px;">
+                        @if ($pendaftaran->onFirstPage())
+                            <li class="page-item disabled"><span class="page-link" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">« Sebelumnya</span></li>
+                        @else
+                            <li class="page-item"><a class="page-link pagination-link" href="{{ $pendaftaran->previousPageUrl() }}" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">« Sebelumnya</a></li>
+                        @endif
 
-    <!-- Pagination -->
-    @if($pendaftaran->hasPages())
-    <div class="d-flex justify-content-between align-items-center mt-4">
-        <div class="text-muted">
-            Menampilkan {{ $pendaftaran->firstItem() }} - {{ $pendaftaran->lastItem() }} dari {{ $pendaftaran->total() }} data
-        </div>
-        <div>
-            {{ $pendaftaran->links() }}
+                        @foreach ($pendaftaran->getUrlRange(max(1, $pendaftaran->currentPage() - 2), min($pendaftaran->lastPage(), $pendaftaran->currentPage() + 2)) as $page => $url)
+                            @if ($page == $pendaftaran->currentPage())
+                                <li class="page-item active"><span class="page-link" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">{{ $page }}</span></li>
+                            @else
+                                <li class="page-item"><a class="page-link pagination-link" href="{{ $url }}" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">{{ $page }}</a></li>
+                            @endif
+                        @endforeach
+
+                        @if ($pendaftaran->hasMorePages())
+                            <li class="page-item"><a class="page-link pagination-link" href="{{ $pendaftaran->nextPageUrl() }}" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Selanjutnya »</a></li>
+                        @else
+                            <li class="page-item disabled"><span class="page-link" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Selanjutnya »</span></li>
+                        @endif
+                    </ul>
+                </nav>
+            </div>
+            @endif
         </div>
     </div>
-    @endif
 </div>
 
 <!-- Modal Detail Pendaftaran -->
@@ -513,56 +531,91 @@
 
 <!-- Modal Konfirmasi Status -->
 <div class="modal fade" id="statusModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="statusTitle">
-                    <i class="fas fa-check-circle me-2"></i>Konfirmasi Status
+            <div class="modal-header" style="background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%); color: white; border: none;">
+                <h5 class="modal-title" id="statusTitle" style="color: white;">
+                    <i class="fas fa-exchange-alt me-2"></i>Ubah Status Pendaftaran
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form id="statusForm" method="POST">
                 @csrf
                 @method('PUT')
-                <div class="modal-body">
+                <div class="modal-body" style="padding: 2rem;">
                     <input type="hidden" id="pendaftaranId" name="id_pendaftaran">
-                    <input type="hidden" id="statusValue" name="status_pendaftaran">
                     
+                    <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                        <p class="mb-2"><strong>Pendaftar:</strong> <span id="userDisplay" class="text-primary">-</span></p>
+                        <p class="mb-0"><strong>Tanggal Daftar:</strong> <span id="dateDisplay" class="text-muted">-</span></p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="status_select" class="form-label fw-600" style="font-weight: 600;">Pilih Status <span class="text-danger">*</span></label>
+                        <select id="status_select" name="status_pendaftaran" class="form-select form-select-lg" required onchange="updateStatusContent()">
+                            <option value="">-- Pilih Status --</option>
+                            <option value="interview">💬 Interview</option>
+                            <option value="diterima">✅ Terima</option>
+                            <option value="ditolak">❌ Tolak</option>
+                        </select>
+                    </div>
+
                     <div id="diterimaContent" style="display: none;">
+                        <div class="alert alert-info mb-3" style="border-left: 4px solid #4361ee;">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Pilih divisi dan jabatan untuk penerimaan</strong>
+                        </div>
                         <div class="mb-3">
-                            <label for="id_divisi" class="form-label">Divisi *</label>
-                            <select class="form-select" id="id_divisi" name="id_divisi" required>
+                            <label for="id_divisi" class="form-label fw-600">Divisi <span class="text-danger">*</span></label>
+                            <select class="form-select" id="id_divisi" name="id_divisi" onchange="filterJabatanByDivisi(this.value)">
                                 <option value="">Pilih Divisi</option>
                                 @foreach($divisi as $div)
-                                <option value="{{ $div->id }}">{{ $div->nama }}</option>
+                                <option value="{{ $div->id_divisi }}">{{ $div->nama_divisi }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="id_jabatan" class="form-label">Jabatan *</label>
-                            <select class="form-select" id="id_jabatan" name="id_jabatan" required>
+                            <label for="id_jabatan" class="form-label fw-600">Jabatan <span class="text-danger">*</span></label>
+                            <select class="form-select" id="id_jabatan" name="id_jabatan">
                                 <option value="">Pilih Jabatan</option>
                                 @foreach($jabatan as $jab)
-                                <option value="{{ $jab->id }}">{{ $jab->nama_jabatan }}</option>
+                                <option value="{{ $jab->id_jabatan }}" data-divisi="{{ $jab->id_divisi }}">{{ $jab->nama_jabatan }}</option>
                                 @endforeach
                             </select>
                         </div>
                     </div>
                     
                     <div id="ditolakContent" style="display: none;">
+                        <div class="alert alert-warning mb-3" style="border-left: 4px solid #f8961e;">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Berikan alasan penolakan (opsional)</strong>
+                        </div>
                         <div class="mb-3">
-                            <label for="alasan_penolakan" class="form-label">Alasan Penolakan</label>
-                            <textarea class="form-control" id="alasan_penolakan" name="alasan_penolakan" 
-                                      rows="3" placeholder="Berikan alasan penolakan..."></textarea>
+                            <label for="notes" class="form-label fw-600">Alasan Penolakan</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="4" placeholder="Tuliskan alasan penolakan (opsional)..."></textarea>
                         </div>
                     </div>
-                    
-                    <p id="confirmationText" class="mb-0"></p>
+
+                    <div id="interviewContent" style="display: none;">
+                        <div class="alert alert-primary mb-3" style="border-left: 4px solid #4361ee;">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            <strong>Jadwalkan interview</strong>
+                        </div>
+                        <div class="mb-3">
+                            <label for="interview_date" class="form-label fw-600">Tanggal Interview <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="interview_date" name="interview_date">
+                            <small class="text-muted d-block mt-2">
+                                <i class="fas fa-info-circle me-1"></i>Pilih tanggal interview (minimal hari ini atau setelahnya)
+                            </small>
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn" id="submitButton">
-                        <i class="fas fa-check me-1"></i><span id="submitText">Konfirmasi</span>
+                <div class="modal-footer" style="border-top: 1px solid #e9ecef;">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Batal
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="submitButton">
+                        <i class="fas fa-check me-1"></i><span id="submitText">Simpan</span>
                     </button>
                 </div>
             </form>
@@ -592,6 +645,91 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Bulk Interview -->
+<div class="modal fade" id="bulkInterviewModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%); color: white; border: none;">
+                <h5 class="modal-title">
+                    <i class="fas fa-calendar-check me-2"></i>Jadwalkan Interview Massal
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="bulkInterviewForm" method="POST">
+                @csrf
+                <div class="modal-body" style="padding: 2rem;">
+                    <div class="alert alert-info mb-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Jadwalkan interview untuk <strong id="pendingCount">0</strong> pendaftar dengan status Pending
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="bulkInterviewDate" class="form-label fw-600">Tanggal Interview <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control form-control-lg" id="bulkInterviewDate" required>
+                        <small class="text-muted d-block mt-2">
+                            <i class="fas fa-info-circle me-1"></i>Semua pendaftar akan dijadwalkan pada tanggal ini
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid #e9ecef;">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-check me-2"></i>Jadwalkan Semua
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Bulk Accept -->
+<div class="modal fade" id="bulkAcceptModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none;">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-check me-2"></i>Terima Massal
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="bulkAcceptForm" method="POST">
+                @csrf
+                <div class="modal-body" style="padding: 2rem;">
+                    <div class="alert alert-success mb-3">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Terima <strong id="interviewCount">0</strong> pendaftar dengan status Interview
+                    </div>
+                    
+                    <div class="alert alert-info mb-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Divisi</strong> akan otomatis sesuai divisi pilihan masing-masing pendaftar saat mendaftar
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="bulkAcceptJabatan" class="form-label fw-600">Jabatan <span class="text-danger">*</span></label>
+                        <select class="form-select form-select-lg" id="bulkAcceptJabatan" required>
+                            <option value="">-- Pilih Jabatan --</option>
+                            @foreach($jabatan as $jab)
+                            <option value="{{ $jab->id_jabatan }}">{{ $jab->nama_jabatan }}</option>
+                            @endforeach
+                        </select>
+                        <small class="text-muted d-block mt-2">
+                            <i class="fas fa-info-circle me-1"></i>Semua pendaftar akan diterima dengan jabatan yang sama
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid #e9ecef;">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check me-2"></i>Terima Semua
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('styles')
@@ -689,16 +827,27 @@
     border: 1px solid #dee2e6;
     background: white;
     color: var(--dark);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    font-weight: 500;
 }
 
 .filter-tabs .nav-pills .nav-link.active {
     background: var(--primary);
     border-color: var(--primary);
     color: white;
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.4);
+    transform: translateY(-2px);
+}
+
+.filter-tabs .nav-pills .nav-link:hover {
+    border-color: var(--primary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .filter-tabs .nav-pills .nav-link:hover:not(.active) {
     background: #f8f9fa;
+    color: var(--primary);
 }
 
 /* Search Box */
@@ -773,6 +922,18 @@
     border-radius: 4px;
     font-family: 'Courier New', monospace;
     font-size: 0.85rem;
+}
+
+/* Pagination Minimal */
+.pagination-sm .page-link {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    border-radius: 3px;
+}
+
+.pagination-sm .page-item.active .page-link {
+    background-color: #4361ee;
+    border-color: #4361ee;
 }
 
 /* Utility truncate */
@@ -905,6 +1066,170 @@
 
 @push('scripts')
 <script>
+// ============================================
+// CORE FUNCTIONS - Load First
+// ============================================
+
+// Open Change Status Modal
+// Real implementation assigned to _openChangeStatus so proxy can defer safely
+window._openChangeStatus = function(id, currentStatus) {
+    // Reset form fields
+    const pendaftaranIdEl = document.getElementById('pendaftaranId');
+    const statusSelectEl = document.getElementById('status_select');
+    const alasanPenolakanEl = document.getElementById('notes');
+    const pesanDiterimaEl = document.getElementById('pesan_diterima');
+    const idDivisiEl = document.getElementById('id_divisi');
+    const idJabatanEl = document.getElementById('id_jabatan');
+    
+    if (pendaftaranIdEl) pendaftaranIdEl.value = id;
+    if (statusSelectEl) statusSelectEl.value = '';
+    if (alasanPenolakanEl) alasanPenolakanEl.value = '';
+    if (pesanDiterimaEl) pesanDiterimaEl.value = '';
+    if (idDivisiEl) idDivisiEl.value = '';
+    if (idJabatanEl) idJabatanEl.value = '';
+
+    // Fetch current record data
+    (async () => {
+        try {
+            const res = await fetch(`/admin/pendaftaran/${id}`);
+            if (!res.ok) throw new Error('Tidak dapat memuat data pendaftaran');
+            const payload = await res.json().catch(() => null);
+            const data = payload?.data || payload || {};
+
+            console.log('Pendaftaran data:', data);
+            console.log('id_divisi dari pendaftar:', data.id_divisi);
+
+            // Store data for use in updateStatusContent
+            window.currentPendaftaranData = data;
+
+            // Display user info
+            const userDisplayEl = document.getElementById('userDisplay');
+            const dateDisplayEl = document.getElementById('dateDisplay');
+            
+            if (userDisplayEl) userDisplayEl.textContent = data.nama || '-';
+            if (dateDisplayEl) dateDisplayEl.textContent = data.created_at ? new Date(data.created_at).toLocaleDateString('id-ID') : '-';
+            
+            // Pre-fill divisi dengan yang dipilih pendaftar jika ada
+            if (data.id_divisi && idDivisiEl) {
+                idDivisiEl.value = data.id_divisi;
+                console.log('Set divisi to:', data.id_divisi);
+                // Trigger filter jabatan
+                filterJabatanByDivisi(data.id_divisi);
+            }
+            
+            const modal = new bootstrap.Modal(document.getElementById('statusModal'));
+            modal.show();
+        } catch (err) {
+            console.warn('Error loading data:', err);
+            showAlert('Gagal memuat data pendaftaran', 'error');
+        }
+    })();
+};
+
+// Handle status selection change
+window.updateStatusContent = function() {
+    const status = document.getElementById('status_select').value;
+    const data = window.currentPendaftaranData || {};
+    const interviewDateInput = document.getElementById('interview_date');
+
+    // Hide all content sections
+    document.getElementById('diterimaContent').style.display = 'none';
+    document.getElementById('ditolakContent').style.display = 'none';
+    document.getElementById('interviewContent').style.display = 'none';
+
+    // Always remove required from interview_date first
+    interviewDateInput.removeAttribute('required');
+
+    if (status === 'diterima') {
+        document.getElementById('diterimaContent').style.display = 'block';
+        document.getElementById('submitButton').className = 'btn btn-success';
+        document.getElementById('submitText').textContent = 'Terima Pendaftaran';
+        
+        // Auto-generate message
+        const adminName = '{{ Auth::user()->name ?? "Admin" }}';
+        const pesanDefault = `Selamat ${data.nama || 'Pendaftar'}, pendaftaran kamu telah diterima oleh ${adminName} sebagai anggota HIMA TI. Silahkan tunggu penjelasan lebih lanjut mengenai orientasi dan kegiatan selanjutnya. Terima kasih sudah bergabung dengan kami!`;
+        document.getElementById('pesan_diterima').value = pesanDefault;
+    } else if (status === 'ditolak') {
+        document.getElementById('ditolakContent').style.display = 'block';
+        document.getElementById('submitButton').className = 'btn btn-danger';
+        document.getElementById('submitText').textContent = 'Tolak Pendaftaran';
+    } else if (status === 'interview') {
+        document.getElementById('interviewContent').style.display = 'block';
+        document.getElementById('submitButton').className = 'btn btn-info';
+        document.getElementById('submitText').textContent = 'Jadwalkan Interview';
+        
+        // Set required attribute ONLY when interview is selected and visible
+        interviewDateInput.setAttribute('required', '');
+        interviewDateInput.focus();
+    }
+}
+
+// Fungsi untuk load jabatan berdasarkan divisi
+window.loadJabatanByDivisi = async function(idDivisi) {
+    const jabatanSelect = document.getElementById('id_jabatan');
+    
+    if (!idDivisi) {
+        jabatanSelect.innerHTML = '<option value="">Pilih Jabatan</option>';
+        return;
+    }
+
+    try {
+        const response = await fetch(`/admin/pendaftaran/jabatan-by-divisi/${idDivisi}`);
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+            jabatanSelect.innerHTML = '<option value="">Pilih Jabatan</option>';
+            result.data.forEach(jabatan => {
+                const option = document.createElement('option');
+                option.value = jabatan.id_jabatan;
+                option.textContent = jabatan.nama_jabatan;
+                jabatanSelect.appendChild(option);
+            });
+        } else {
+            jabatanSelect.innerHTML = '<option value="">Tidak ada jabatan tersedia</option>';
+        }
+    } catch (error) {
+        console.error('Error loading jabatan:', error);
+        jabatanSelect.innerHTML = '<option value="">Gagal memuat jabatan</option>';
+    }
+}
+
+// Filter jabatan berdasarkan divisi yang dipilih (dari options yang sudah ada)
+window.filterJabatanByDivisi = function(idDivisi) {
+    console.log('filterJabatanByDivisi called with:', idDivisi);
+    
+    const jabatanSelect = document.getElementById('id_jabatan');
+    const allOptions = jabatanSelect.querySelectorAll('option[data-divisi]');
+    
+    console.log('Total options with data-divisi:', allOptions.length);
+    
+    // Reset to default option
+    jabatanSelect.innerHTML = '<option value="">Pilih Jabatan</option>';
+    
+    if (!idDivisi) {
+        console.log('No divisi selected, clearing jabatan');
+        return;
+    }
+    
+    // Filter dan add options yang sesuai dengan divisi
+    let count = 0;
+    allOptions.forEach(option => {
+        const dataDivisi = option.getAttribute('data-divisi');
+        console.log('Checking option:', option.textContent, 'dataDivisi:', dataDivisi, 'selected idDivisi:', idDivisi);
+        
+        if (String(dataDivisi) === String(idDivisi)) {
+            jabatanSelect.appendChild(option.cloneNode(true));
+            count++;
+        }
+    });
+    
+    console.log('Added', count, 'jabatan options');
+}
+
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+
 // Fungsi untuk menyimpan pengaturan dan membuka pendaftaran
 async function simpanDanBukaPendaftaran(event) {
     // Validasi form terlebih dahulu
@@ -980,8 +1305,9 @@ async function simpanDanBukaPendaftaran(event) {
 
         if (openResult.success) {
             showAlert('Pengaturan berhasil disimpan dan sesi pendaftaran berhasil dibuka', 'success');
+            // Update UI instead of reload
             setTimeout(() => {
-                location.reload();
+                location.href = window.location.href; // Soft reload to update the page data
             }, 1500);
         } else {
             throw new Error(openResult.message || 'Gagal membuka sesi pendaftaran');
@@ -1027,8 +1353,9 @@ async function tutupSesiPendaftaran(event) {
 
         if (data.success) {
             showAlert('Sesi pendaftaran berhasil ditutup', 'success');
+            // Update UI instead of reload
             setTimeout(() => {
-                location.reload();
+                location.href = window.location.href; // Soft reload to update the page data
             }, 1500);
         } else {
             throw new Error(data.message || 'Gagal menutup sesi pendaftaran');
@@ -1105,7 +1432,7 @@ function validateDates() {
     return true;
 }
 
-// Filter pendaftaran
+// Filter pendaftaran (dengan smooth transition)
 function filterPendaftaran(status) {
     const url = new URL(window.location.href);
     if (status === 'all') {
@@ -1114,10 +1441,41 @@ function filterPendaftaran(status) {
         url.searchParams.set('status', status);
     }
     url.searchParams.delete('page'); // Reset to first page
-    window.location.href = url.toString();
+    
+    // Update active button indicator
+    document.querySelectorAll('.nav-link').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Set active class on clicked button
+    event.target.closest('.nav-link').classList.add('active');
+    
+    // Show/hide bulk action section (hanya untuk pending)
+    const bulkActionSection = document.getElementById('bulkActionSection');
+    const bulkAcceptSection = document.getElementById('bulkAcceptSection');
+    
+    if (status === 'pending') {
+        bulkActionSection.style.display = 'block';
+        bulkAcceptSection.style.display = 'none';
+    } else if (status === 'interview') {
+        bulkActionSection.style.display = 'none';
+        bulkAcceptSection.style.display = 'block';
+    } else {
+        bulkActionSection.style.display = 'none';
+        bulkAcceptSection.style.display = 'none';
+    }
+    
+    // Save scroll position
+    const scrollPos = window.scrollY;
+    
+    // Use history API untuk update URL tanpa reload penuh
+    window.history.pushState({ scrollPos: scrollPos }, '', url.toString());
+    
+    // Load content via fetch
+    loadFilteredContent(url);
 }
 
-// Pencarian pendaftaran
+// Pencarian pendaftaran (dengan smooth transition)
 function searchPendaftaran() {
     const searchTerm = document.getElementById('searchInput').value.trim();
     const url = new URL(window.location.href);
@@ -1127,8 +1485,207 @@ function searchPendaftaran() {
         url.searchParams.set('search', searchTerm);
     }
     url.searchParams.delete('page'); // Reset to first page
-    window.location.href = url.toString();
+    
+    // Save scroll position
+    const scrollPos = window.scrollY;
+    
+    // Use history API untuk update URL tanpa reload penuh
+    window.history.pushState({ scrollPos: scrollPos }, '', url.toString());
+    
+    // Load content via fetch
+    loadFilteredContent(url);
 }
+
+// Load filtered content via AJAX
+async function loadFilteredContent(url) {
+    try {
+        const response = await fetch(url.toString(), {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error('Gagal memuat data');
+        }
+        
+        const html = await response.text();
+        
+        // Parse dan update card body (termasuk table + pagination)
+        const parser = new DOMParser();
+        const newDoc = parser.parseFromString(html, 'text/html');
+        
+        // Find card body dengan class "card-body p-0"
+        const newCardBody = newDoc.querySelector('.card-body.p-0');
+        const currentCardBody = document.querySelector('.main-card .card-body.p-0');
+        
+        if (newCardBody && currentCardBody) {
+            currentCardBody.innerHTML = newCardBody.innerHTML;
+            // Re-initialize tooltips setelah update
+            const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            tooltips.forEach(tooltip => {
+                new bootstrap.Tooltip(tooltip);
+            });
+        } else {
+            // Fallback to full reload jika struktur tidak match
+            location.href = url.toString();
+        }
+        
+    } catch (error) {
+        console.error('Error loading content:', error);
+        // Fallback to traditional reload
+        location.href = url.toString();
+    }
+}
+
+// Show Bulk Interview Modal
+function showBulkInterviewModal() {
+    // Get count dari badge pending
+    const pendingCount = document.querySelector('.nav-link[onclick="filterPendaftaran(\'pending\')"] .badge')?.textContent?.trim() || '0';
+    document.getElementById('pendingCount').textContent = pendingCount;
+    
+    // Set min date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('bulkInterviewDate').min = today;
+    
+    const modal = new bootstrap.Modal(document.getElementById('bulkInterviewModal'));
+    modal.show();
+}
+
+// Handle Bulk Interview Form Submit
+document.addEventListener('DOMContentLoaded', function() {
+    const bulkInterviewForm = document.getElementById('bulkInterviewForm');
+    if (bulkInterviewForm) {
+        bulkInterviewForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const interviewDate = document.getElementById('bulkInterviewDate').value;
+            
+            if (!interviewDate) {
+                showAlert('Tanggal interview harus diisi', 'warning');
+                return;
+            }
+            
+            try {
+                const button = this.querySelector('button[type="submit"]');
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+                button.disabled = true;
+                
+                const response = await fetch("{{ route('admin.pendaftaran.bulk-interview') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        interview_date: interviewDate
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert(data.message || 'Interview berhasil dijadwalkan untuk semua pendaftar', 'success');
+                    
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('bulkInterviewModal'));
+                    if (modal) modal.hide();
+                    
+                    // Reload table
+                    setTimeout(() => {
+                        loadFilteredContent(new URL(window.location.href));
+                    }, 1000);
+                } else {
+                    throw new Error(data.message || 'Gagal menjadwalkan interview');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert(error.message || 'Terjadi kesalahan', 'error');
+                
+                // Reset button
+                const button = this.querySelector('button[type="submit"]');
+                button.innerHTML = '<i class="fas fa-check me-2"></i>Jadwalkan Semua';
+                button.disabled = false;
+            }
+        });
+    }
+});
+
+// Show Bulk Accept Modal
+function showBulkAcceptModal() {
+    // Get count dari badge interview
+    const interviewCount = document.querySelector('.nav-link[onclick="filterPendaftaran(\'interview\')"] .badge')?.textContent?.trim() || '0';
+    document.getElementById('interviewCount').textContent = interviewCount;
+    
+    // Reset form
+    document.getElementById('bulkAcceptJabatan').value = '';
+    
+    const modal = new bootstrap.Modal(document.getElementById('bulkAcceptModal'));
+    modal.show();
+}
+
+// Handle Bulk Accept Form Submit
+document.addEventListener('DOMContentLoaded', function() {
+    const bulkAcceptForm = document.getElementById('bulkAcceptForm');
+    if (bulkAcceptForm) {
+        bulkAcceptForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const jabatanId = document.getElementById('bulkAcceptJabatan').value;
+            
+            if (!jabatanId) {
+                showAlert('Jabatan harus dipilih', 'warning');
+                return;
+            }
+            
+            try {
+                const button = this.querySelector('button[type="submit"]');
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+                button.disabled = true;
+                
+                const response = await fetch("{{ route('admin.pendaftaran.bulk-accept') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        id_jabatan: jabatanId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert(data.message || 'Semua pendaftar berhasil diterima', 'success');
+                    
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('bulkAcceptModal'));
+                    if (modal) modal.hide();
+                    
+                    // Reload table
+                    setTimeout(() => {
+                        loadFilteredContent(new URL(window.location.href));
+                    }, 1000);
+                } else {
+                    throw new Error(data.message || 'Gagal menerima pendaftar');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert(error.message || 'Terjadi kesalahan', 'error');
+                
+                // Reset button
+                const button = this.querySelector('button[type="submit"]');
+                button.innerHTML = '<i class="fas fa-check me-2"></i>Terima Semua';
+                button.disabled = false;
+            }
+        });
+    }
+});
 
 // View detail pendaftaran
 async function viewDetail(id) {
@@ -1146,54 +1703,124 @@ async function viewDetail(id) {
         if (data.status_pendaftaran === 'submitted') statusClass = 'bg-secondary';
         else if (data.status_pendaftaran === 'verifying') statusClass = 'bg-primary';
         else if (data.status_pendaftaran === 'interview') statusClass = 'bg-warning text-dark';
-        else if (data.status_pendaftaran === 'accepted') statusClass = 'bg-success';
-        else if (data.status_pendaftaran === 'rejected') statusClass = 'bg-danger';
+        else if (data.status_pendaftaran === 'diterima') statusClass = 'bg-success';
+        else if (data.status_pendaftaran === 'ditolak') statusClass = 'bg-danger';
+        else if (data.status_pendaftaran === 'pending') statusClass = 'bg-warning text-dark';
 
         let content = `
-            <div class="row">
-                <div class="col-md-6">
-                    <h6>Data Pribadi</h6>
-                    <table class="table table-sm">
-                        <tr><td><strong>Nama</strong></td><td>${data.nama || '-'}</td></tr>
-                        <tr><td><strong>NIM</strong></td><td>${data.nim || '-'}</td></tr>
-                        <tr><td><strong>Semester</strong></td><td>Semester ${data.semester || '-'}</td></tr>
-                        <tr><td><strong>No HP</strong></td><td>${data.no_hp || '-'}</td></tr>
-                        <tr><td><strong>Email</strong></td><td>${data.user?.email || '-'}</td></tr>
-                    </table>
+            <style>
+                .detail-section { margin-bottom: 1.5rem; }
+                .detail-section h6 { 
+                    font-weight: 600; 
+                    color: #495057;
+                    padding-bottom: 0.75rem;
+                    border-bottom: 2px solid #e9ecef;
+                    margin-bottom: 1rem;
+                }
+                .detail-row { 
+                    display: flex; 
+                    padding: 0.75rem 0;
+                    border-bottom: 1px solid #f1f3f5;
+                }
+                .detail-row:last-child { border-bottom: none; }
+                .detail-label { 
+                    font-weight: 600;
+                    color: #6c757d;
+                    min-width: 150px;
+                }
+                .detail-value { 
+                    color: #212529;
+                    word-break: break-word;
+                }
+                .text-box {
+                    background: #f8f9fa;
+                    border-left: 4px solid #4361ee;
+                    padding: 1rem;
+                    border-radius: 4px;
+                    margin: 0.5rem 0;
+                    line-height: 1.6;
+                }
+                .badge-large { padding: 0.5rem 1rem; font-size: 0.9rem; }
+            </style>
+            <div class="detail-section">
+                <h6><i class="fas fa-user-circle me-2"></i>Data Pribadi</h6>
+                <div class="detail-row">
+                    <span class="detail-label">Nama</span>
+                    <span class="detail-value"><strong>${data.nama || '-'}</strong></span>
                 </div>
-                <div class="col-md-6">
-                    <h6>Informasi Pendaftaran</h6>
-                    <table class="table table-sm">
-                        <tr><td><strong>Tanggal Daftar</strong></td><td>${data.created_at ? new Date(data.created_at).toLocaleDateString('id-ID') : '-'}</td></tr>
-                        <tr><td><strong>Status</strong></td>
-                            <td>
-                                <span class="badge ${statusClass}">${data.status_pendaftaran || '-'}</span>
-                            </td>
-                        </tr>
-                        ${data.validator ? `<tr><td><strong>Divalidasi Oleh</strong></td><td>${data.validator.name || 'Admin'}</td></tr>` : ''}
-                        ${data.divisi ? `<tr><td><strong>Divisi</strong></td><td>${data.divisi.nama || '-'}</td></tr>` : ''}
-                        ${data.jabatan ? `<tr><td><strong>Jabatan</strong></td><td>${data.jabatan.nama_jabatan || '-'}</td></tr>` : ''}
-                    </table>
+                <div class="detail-row">
+                    <span class="detail-label">NIM</span>
+                    <span class="detail-value"><code>${data.nim || '-'}</code></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Semester</span>
+                    <span class="detail-value"><span class="badge bg-secondary">Semester ${data.semester || '-'}</span></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">No HP</span>
+                    <span class="detail-value">${data.no_hp || '-'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Email</span>
+                    <span class="detail-value">${data.user?.email || '-'}</span>
                 </div>
             </div>
-            <div class="row mt-3">
-                <div class="col-12">
-                    <h6>Alasan Mendaftar</h6>
-                    <div class="border rounded p-3">
-                        ${(data.alasan_mendaftar || '-').replace(/\n/g, '<br>')}
-                    </div>
+
+            <div class="detail-section">
+                <h6><i class="fas fa-clipboard-check me-2"></i>Informasi Pendaftaran</h6>
+                <div class="detail-row">
+                    <span class="detail-label">Tanggal Daftar</span>
+                    <span class="detail-value">${data.created_at ? new Date(data.created_at).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : '-'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Status</span>
+                    <span class="detail-value"><span class="badge badge-large ${statusClass}">${data.status_pendaftaran?.toUpperCase() || '-'}</span></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Divisi</span>
+                    <span class="detail-value">
+                        ${data.divisi ? `<span class="badge bg-info badge-large">${data.divisi.nama_divisi || data.divisi.nama || '-'}</span>` : '<span class="text-muted">-</span>'}
+                    </span>
+                </div>
+                ${data.validator ? `
+                <div class="detail-row">
+                    <span class="detail-label">Divalidasi Oleh</span>
+                    <span class="detail-value">${data.validator.name || 'Admin'}</span>
+                </div>
+                ` : ''}
+                ${data.jabatan ? `
+                <div class="detail-row">
+                    <span class="detail-label">Jabatan</span>
+                    <span class="detail-value"><span class="badge bg-success badge-large">${data.jabatan.nama_jabatan || data.jabatan.nama || '-'}</span></span>
+                </div>
+                ` : ''}
+            </div>
+
+            <div class="detail-section">
+                <h6><i class="fas fa-comment me-2"></i>Alasan Mendaftar</h6>
+                <div class="text-box">
+                    ${(data.alasan_mendaftar || '-').replace(/\n/g, '<br>')}
                 </div>
             </div>
         `;
+
+        if (data.alasan_divisi) {
+            content += `
+                <div class="detail-section">
+                    <h6><i class="fas fa-lightbulb me-2"></i>Alasan Memilih Divisi</h6>
+                    <div class="text-box">
+                        ${(data.alasan_divisi || '-').replace(/\n/g, '<br>')}
+                    </div>
+                </div>
+            `;
+        }
         
         if (data.pengalaman) {
             content += `
-                <div class="row mt-3">
-                    <div class="col-12">
-                        <h6>Pengalaman Organisasi</h6>
-                        <div class="border rounded p-3">
-                            ${data.pengalaman.replace(/\n/g, '<br>')}
-                        </div>
+                <div class="detail-section">
+                    <h6><i class="fas fa-briefcase me-2"></i>Pengalaman Organisasi</h6>
+                    <div class="text-box">
+                        ${data.pengalaman.replace(/\n/g, '<br>')}
                     </div>
                 </div>
             `;
@@ -1201,12 +1828,10 @@ async function viewDetail(id) {
         
         if (data.skill) {
             content += `
-                <div class="row mt-3">
-                    <div class="col-12">
-                        <h6>Kemampuan/Keterampilan</h6>
-                        <div class="border rounded p-3">
-                            ${data.skill.replace(/\n/g, '<br>')}
-                        </div>
+                <div class="detail-section">
+                    <h6><i class="fas fa-star me-2"></i>Kemampuan/Keterampilan</h6>
+                    <div class="text-box">
+                        ${data.skill.replace(/\n/g, '<br>')}
                     </div>
                 </div>
             `;
@@ -1214,13 +1839,11 @@ async function viewDetail(id) {
         
         if (data.dokumen) {
             content += `
-                <div class="row mt-3">
-                    <div class="col-12">
-                        <h6>Dokumen Pendaftaran</h6>
-                        <a href="{{ asset('storage/') }}/${data.dokumen}" target="_blank" class="btn btn-outline-primary">
-                            <i class="fas fa-file-pdf me-2"></i>Lihat Dokumen
-                        </a>
-                    </div>
+                <div class="detail-section">
+                    <h6><i class="fas fa-file me-2"></i>Dokumen Pendaftaran</h6>
+                    <a href="{{ asset('storage/') }}/${data.dokumen}" target="_blank" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-file-pdf me-2"></i>Lihat Dokumen
+                    </a>
                 </div>
             `;
         }
@@ -1244,7 +1867,7 @@ function updateStatus(id, status) {
     // Reset form fields
     document.getElementById('id_divisi').value = '';
     document.getElementById('id_jabatan').value = '';
-    document.getElementById('alasan_penolakan').value = '';
+    document.getElementById('notes').value = '';
     
     // Show/hide content based on status
     document.getElementById('diterimaContent').style.display = status === 'diterima' ? 'block' : 'none';
@@ -1309,6 +1932,26 @@ document.addEventListener('DOMContentLoaded', function() {
             searchPendaftaran();
         }
     });
+
+    // Auto search on input (debounced)
+    let searchTimeout;
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(function() {
+            searchPendaftaran();
+        }, 500); // 500ms debounce
+    });
+
+    // Handle pagination links
+    document.addEventListener('click', function(e) {
+        if (e.target.matches('.pagination-link')) {
+            e.preventDefault();
+            const url = e.target.getAttribute('href');
+            if (url) {
+                loadFilteredContent(new URL(url, window.location.origin));
+            }
+        }
+    });
     
     // Date validation
     const tanggalMulai = document.getElementById('tanggal_mulai');
@@ -1325,116 +1968,133 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Handle form submission for status modal
-    document.getElementById('statusForm').addEventListener('submit', function(e) {
-        const status = document.getElementById('statusValue').value;
+    document.getElementById('statusForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const form = this;
+        const id = document.getElementById('pendaftaranId').value;
+        const statusSelectEl = document.getElementById('status_select');
+        const status = statusSelectEl ? statusSelectEl.value : '';
+        
+        console.log('=== FORM SUBMIT DEBUG ===');
+        console.log('ID:', id);
+        console.log('Status element:', statusSelectEl);
+        console.log('Status value:', status);
+        console.log('Status is empty?', !status || status === '');
+        
+        // Validate status selection
+        if (!status || status === '') {
+            showAlert('Harap pilih status terlebih dahulu', 'error');
+            console.log('BLOCKED: Status tidak dipilih');
+            return;
+        }
+
+        // Validate required fields for acceptance
         if (status === 'diterima') {
             const divisi = document.getElementById('id_divisi').value;
             const jabatan = document.getElementById('id_jabatan').value;
             if (!divisi || !jabatan) {
-                e.preventDefault();
                 showAlert('Harap pilih divisi dan jabatan untuk penerimaan', 'error');
+                console.log('BLOCKED: divisi atau jabatan kosong');
+                return;
             }
         }
-    });
 
-    // Change status modal logic
-    window.openChangeStatus = function(id, currentStatus) {
-        const form = document.getElementById('changeStatusForm');
-        form.action = `/admin/pendaftaran/${id}/status`;
-        document.getElementById('status_select').value = currentStatus || 'submitted';
-        document.getElementById('status_notes').value = '';
-        document.getElementById('interview_date').value = '';
-        document.getElementById('interviewDateGroup').style.display = (currentStatus === 'interview') ? 'block' : 'none';
-
-        // Fetch current record to populate fields (notes, interview_date) and format datetime for input
-        (async () => {
-            try {
-                const res = await fetch(`/admin/pendaftaran/${id}`);
-                if (!res.ok) throw new Error('Tidak dapat memuat data pendaftaran');
-                const payload = await res.json().catch(() => null);
-                const data = payload?.data || payload || {};
-
-                // set status if present
-                if (data.status_pendaftaran) {
-                    document.getElementById('status_select').value = data.status_pendaftaran;
-                }
-
-                // set notes
-                document.getElementById('status_notes').value = data.notes || '';
-
-                // format interview_date for <input type="datetime-local"> as YYYY-MM-DDTHH:mm
-                if (data.interview_date) {
-                    // data.interview_date may be 'YYYY-MM-DD HH:MM:SS'
-                    const normalized = data.interview_date.replace(' ', 'T');
-                    const dt = new Date(normalized);
-                    if (!isNaN(dt)) {
-                        const pad = n => String(n).padStart(2, '0');
-                        const value = `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}T${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
-                        document.getElementById('interview_date').value = value;
-                        document.getElementById('interviewDateGroup').style.display = 'block';
-                    } else {
-                        // fallback: try parsing as ISO
-                        try {
-                            const iso = new Date(data.interview_date);
-                            if (!isNaN(iso)) {
-                                const pad = n => String(n).padStart(2, '0');
-                                const value = `${iso.getFullYear()}-${pad(iso.getMonth()+1)}-${pad(iso.getDate())}T${pad(iso.getHours())}:${pad(iso.getMinutes())}`;
-                                document.getElementById('interview_date').value = value;
-                                document.getElementById('interviewDateGroup').style.display = 'block';
-                            }
-                        } catch (e) {
-                            // ignore
-                        }
-                    }
-                }
-
-            } catch (err) {
-                console.warn('openChangeStatus: could not prefill data', err);
-            } finally {
-                const modal = new bootstrap.Modal(document.getElementById('changeStatusModal'));
-                modal.show();
+        // Create fresh FormData with only required fields
+        const formData = new FormData();
+        
+        // Add required fields only
+        formData.append('status_pendaftaran', status);
+        formData.append('_token', document.querySelector('#statusForm [name="_token"]').value);
+        
+        console.log('=== FormData being sent ===');
+        console.log('status_pendaftaran:', status);
+        
+        // Add interview_date only if status is interview
+        if (status === 'interview') {
+            const interviewDate = document.getElementById('interview_date').value;
+            
+            // Client-side validation: interview_date is required when status is interview
+            if (!interviewDate) {
+                showAlert('Tanggal interview harus diisi', 'warning');
+                document.getElementById('interview_date').focus();
+                return;
             }
-        })();
-    }
+            
+            formData.append('interview_date', interviewDate);
+            console.log('interview_date:', interviewDate);
+        }
 
-    document.getElementById('status_select').addEventListener('change', function() {
-        const v = this.value;
-        document.getElementById('interviewDateGroup').style.display = (v === 'interview') ? 'block' : 'none';
-    });
+        // Add notes for rejection or acceptance message
+        if (status === 'ditolak' || status === 'diterima') {
+            const notes = document.getElementById('notes').value;
+            if (notes) {
+                formData.append('notes', notes);
+                console.log('notes:', notes);
+            }
+        }
 
-    document.getElementById('changeStatusForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const form = e.target;
-        const action = form.action;
-        const formData = new FormData(form);
+        console.log('=== Sending to server ===');
+        for (let [key, value] of formData.entries()) {
+            console.log(`  ${key}: "${value}"`);
+        }
+
         try {
-            const res = await fetch(action, {
+            // Get CSRF token dari form
+            const tokenEl = document.querySelector('#statusForm [name="_token"]');
+            const csrfToken = tokenEl ? tokenEl.value : '';
+            
+            console.log('CSRF Token found?', !!csrfToken);
+            console.log('Sending PUT to: /admin/pendaftaran/' + id + '/update-status');
+            
+            // Use POST with method override so Laravel can handle FormData properly
+            const response = await fetch(`/admin/pendaftaran/${id}/update-status`, {
                 method: 'POST',
                 headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-HTTP-Method-Override': 'PUT'
                 },
                 body: formData
             });
-            const data = await res.json().catch(() => null);
-            // If response is HTML redirect, reload page
-            if (res.ok) {
-                // Try to read JSON success message, otherwise reload
-                if (data && data.success === false) {
-                    showAlert(data.message || 'Gagal memperbarui status', 'error');
-                } else {
-                    showAlert('Status pendaftaran berhasil diperbarui', 'success');
-                    setTimeout(() => location.reload(), 800);
+
+            console.log('Response status:', response.status);
+
+            const data = await response.json().catch((e) => {
+                console.log('JSON parse error:', e);
+                return {};
+            });
+            
+            console.log('Response data:', data);
+            
+            if (!response.ok) {
+                // Handle validation errors
+                if (data.errors) {
+                    console.log('Validation errors detail:');
+                    const errorArray = [];
+                    for (let field in data.errors) {
+                        console.log(`  ${field}:`, data.errors[field]);
+                        errorArray.push(...data.errors[field]);
+                    }
+                    const errorMessages = errorArray.join(', ');
+                    throw new Error(errorMessages);
                 }
-            } else {
-                // Fallback: reload to see errors
-                location.reload();
+                throw new Error(data.message || 'Gagal mengubah status pendaftaran');
             }
-        } catch (err) {
-            console.error(err);
-            showAlert('Terjadi kesalahan saat menyimpan status', 'error');
+            
+            showAlert(data.message || 'Status pendaftaran berhasil diubah', 'success');
+            setTimeout(() => {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('statusModal'));
+                if (modal) modal.hide();
+                location.reload();
+            }, 800);
+        } catch (error) {
+            console.error('=== ERROR ===', error);
+            showAlert(error.message || 'Terjadi kesalahan saat menyimpan status', 'error');
         }
     });
+
 });
 </script>
 @endpush

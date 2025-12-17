@@ -18,6 +18,9 @@ class Pendaftaran extends Model
         'nama',
         'semester',
         'alasan_mendaftar',
+        'id_divisi',
+        'id_jabatan',
+        'alasan_divisi',
         'pengalaman',
         'skill',
         'dokumen',
@@ -27,7 +30,8 @@ class Pendaftaran extends Model
         'divalidasi_oleh',
         'validated_at',
         'interview_date',
-        'notes'
+        'notes',
+        'wa_sent'
     ];
 
     protected $casts = [
@@ -49,7 +53,7 @@ class Pendaftaran extends Model
      */
     public function divisi()
     {
-        return $this->belongsTo(Divisi::class, 'id_divisi', 'id');
+        return $this->belongsTo(Divisi::class, 'id_divisi', 'id_divisi');
     }
 
     /**
@@ -57,7 +61,7 @@ class Pendaftaran extends Model
      */
     public function jabatan()
     {
-        return $this->belongsTo(Jabatan::class, 'id_jabatan', 'id');
+        return $this->belongsTo(Jabatan::class, 'id_jabatan', 'id_jabatan');
     }
 
     /**

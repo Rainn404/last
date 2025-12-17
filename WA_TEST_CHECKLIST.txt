@@ -1,0 +1,341 @@
+📋 WHATSAPP INTEGRATION - MANUAL TEST CHECKLIST
+═════════════════════════════════════════════════════════════════════════════
+
+Test Date: _______________
+Tester: ___________________
+Status: [ ] PASS  [ ] FAIL
+
+═════════════════════════════════════════════════════════════════════════════
+SETUP PHASE
+═════════════════════════════════════════════════════════════════════════════
+
+[ ] 1. Server Running
+    Command: php artisan serve
+    Expected: ✅ Server running on http://127.0.0.1:8000
+    Status: ____________________
+
+[ ] 2. Login to Admin
+    URL: http://127.0.0.1:8000/admin
+    Expected: ✅ Dashboard loaded
+    Status: ____________________
+
+[ ] 3. Navigate to Pendaftaran
+    Menu: Admin → Pendaftaran
+    Expected: ✅ Pendaftaran list visible
+    Status: ____________________
+
+═════════════════════════════════════════════════════════════════════════════
+DATA PREPARATION
+═════════════════════════════════════════════════════════════════════════════
+
+[ ] 4. Find Test Pendaftaran
+    Criteria:
+    ✓ Status: pending
+    ✓ No HP: exists (08xxx or 62xxx format)
+    ✓ Nama: filled
+    
+    Selected Record:
+    ID: ________________
+    Nama: ________________
+    No HP: ________________
+    Current Status: ________________
+
+[ ] 5. Verify Phone Number Format
+    Format Check:
+    [ ] Starts with 08 → OK ✅
+    [ ] Starts with 62 → OK ✅
+    [ ] Other format → PROBLEM ❌
+    
+    Action: If invalid, update phone number first
+
+═════════════════════════════════════════════════════════════════════════════
+TEST CASE 1: STATUS CHANGE TO INTERVIEW
+═════════════════════════════════════════════════════════════════════════════
+
+[ ] 6. Click Edit Button
+    Expected: ✅ Form opens with data filled
+    Status: ____________________
+
+[ ] 7. Change Status to "Interview"
+    Action: Select "interview" from dropdown
+    Expected: ✅ Dropdown shows interview option
+    Status: ____________________
+
+[ ] 8. Fill Interview Date (if required)
+    Action: Select a future date
+    Expected: ✅ Date picker works
+    Status: ____________________
+
+[ ] 9. Click Simpan Button
+    Action: Click Simpan/Save
+    Expected: ✅ Page redirects with success message
+    Success Message: _______________________________
+    Status: ____________________
+
+[ ] 10. Verify in Database
+    Command: SELECT * FROM pendaftaran WHERE id_pendaftaran = [ID];
+    Check: wa_sent = 1 (true) ✅
+    Status: ____________________
+
+[ ] 11. Check Logs
+    Command: tail -f storage/logs/laravel.log | grep WhatsApp
+    Expected: "WhatsApp sent successfully" ✅
+    Log Entry: _________________________________
+    Status: ____________________
+
+[ ] 12. Verify on Phone
+    Expected: ✅ WhatsApp message received
+    Message Preview: _____________________________
+    Time Received: ________________
+    Status: ____________________
+
+═════════════════════════════════════════════════════════════════════════════
+TEST CASE 2: STATUS CHANGE TO DITERIMA (ACCEPTED)
+═════════════════════════════════════════════════════════════════════════════
+
+[ ] 13. Edit Same Pendaftaran Again
+    Action: Click Edit
+    Expected: ✅ Form opens
+    Status: ____________________
+
+[ ] 14. Change Status to "Diterima"
+    Action: Select "diterima" from dropdown
+    Expected: ✅ Divisi and Jabatan dropdowns appear
+    Status: ____________________
+
+[ ] 15. Select Divisi & Jabatan
+    Divisi Selected: ________________
+    Jabatan Selected: ________________
+    Status: ____________________
+
+[ ] 16. Click Simpan
+    Action: Save changes
+    Expected: ✅ Success message
+    Status: ____________________
+
+[ ] 17. Verify in Database
+    Check: 
+    [ ] wa_sent = 1 (true)
+    [ ] status_pendaftaran = 'diterima'
+    [ ] id_divisi set
+    [ ] id_jabatan set
+    Status: ____________________
+
+[ ] 18. Check Logs Again
+    Expected: New WhatsApp sent message ✅
+    Status: ____________________
+
+[ ] 19. Verify on Phone
+    Expected: ✅ Message with divisi & jabatan info
+    Status: ____________________
+
+═════════════════════════════════════════════════════════════════════════════
+TEST CASE 3: STATUS CHANGE TO DITOLAK (REJECTED)
+═════════════════════════════════════════════════════════════════════════════
+
+[ ] 20. Find Another Pendaftaran (for rejection test)
+    Criteria: Status not yet "ditolak"
+    ID: ________________
+    Nama: ________________
+    No HP: ________________
+    Status: ____________________
+
+[ ] 21. Click Edit
+    Expected: ✅ Form opens
+    Status: ____________________
+
+[ ] 22. Change Status to "Ditolak"
+    Action: Select "ditolak"
+    Expected: ✅ Dropdown shows ditolak
+    Status: ____________________
+
+[ ] 23. Add Rejection Reason (Notes)
+    Action: Fill rejection reason
+    Reason: _______________________________________________
+    Status: ____________________
+
+[ ] 24. Click Simpan
+    Expected: ✅ Success
+    Status: ____________________
+
+[ ] 25. Verify wa_sent = 1
+    Database Check: ✅ wa_sent = true
+    Status: ____________________
+
+[ ] 26. Check Logs
+    Expected: WhatsApp sent message ✅
+    Status: ____________________
+
+[ ] 27. Verify on Phone
+    Expected: ✅ Message with rejection reason
+    Status: ____________________
+
+═════════════════════════════════════════════════════════════════════════════
+DUPLICATE PREVENTION TEST
+═════════════════════════════════════════════════════════════════════════════
+
+[ ] 28. Edit Same Pendaftaran (already diterima)
+    Action: Try to change status again
+    Status: ____________________
+
+[ ] 29. Update to Different Status
+    Action: Change diterima → interview
+    Status: ____________________
+
+[ ] 30. Save
+    Expected: ✅ Status changes
+    Status: ____________________
+
+[ ] 31. Check wa_sent
+    Expected: 
+    [ ] wa_sent = 1 (sent for new status)
+    Status: ____________________
+
+[ ] 32. Try to Save Without Changing
+    Action: Edit → Click Simpan without changes
+    Expected: ✅ No WhatsApp sent (status didn't change)
+    Status: ____________________
+
+[ ] 33. Verify in Logs
+    Expected: No new WhatsApp message ✅
+    Status: ____________________
+
+═════════════════════════════════════════════════════════════════════════════
+ERROR HANDLING TEST
+═════════════════════════════════════════════════════════════════════════════
+
+[ ] 34. Test with Invalid Phone
+    Action: 
+    1. Create/edit pendaftaran with invalid phone
+    2. Change status
+    3. Save
+    Expected: 
+    ✅ Form saves successfully
+    ✅ No crash/error page
+    ✅ Log shows error message
+    Status: ____________________
+
+[ ] 35. Test with Null Phone
+    Action:
+    1. Edit pendaftaran with no phone
+    2. Change status
+    3. Save
+    Expected:
+    ✅ Form saves
+    ✅ No WhatsApp sent (expected)
+    ✅ Log shows warning
+    Status: ____________________
+
+═════════════════════════════════════════════════════════════════════════════
+DATABASE VERIFICATION
+═════════════════════════════════════════════════════════════════════════════
+
+[ ] 36. Column Exists
+    Command: DESCRIBE pendaftaran;
+    Check: wa_sent column present ✅
+    Type: TINYINT(1) DEFAULT 0 ✅
+    Status: ____________________
+
+[ ] 37. Count Sent Messages
+    Command: SELECT COUNT(*) FROM pendaftaran WHERE wa_sent = 1;
+    Expected: Should show at least 3 (from tests above)
+    Count: ________________
+    Status: ____________________
+
+[ ] 38. View Sent Details
+    Command: SELECT id_pendaftaran, nama, no_hp, status_pendaftaran, wa_sent 
+             FROM pendaftaran WHERE wa_sent = 1;
+    Expected: ✅ Shows all sent messages
+    Status: ____________________
+
+═════════════════════════════════════════════════════════════════════════════
+LOGS VERIFICATION
+═════════════════════════════════════════════════════════════════════════════
+
+[ ] 39. Check Log File Exists
+    Path: storage/logs/laravel.log
+    Expected: ✅ File exists
+    Status: ____________________
+
+[ ] 40. Search for WhatsApp Entries
+    Command: grep "WhatsApp" storage/logs/laravel.log | wc -l
+    Expected: ✅ Multiple entries (at least 3+)
+    Count: ________________
+    Status: ____________________
+
+[ ] 41. Check Log Format
+    Expected patterns in logs:
+    [ ] "Sending WhatsApp via Fonnte" ✅
+    [ ] "WhatsApp sent successfully" ✅
+    [ ] "pendaftaran_id: X" ✅
+    [ ] "to: 62..." ✅
+    Status: ____________________
+
+═════════════════════════════════════════════════════════════════════════════
+PHONE NORMALIZATION TEST
+═════════════════════════════════════════════════════════════════════════════
+
+[ ] 42. Test Different Phone Formats
+    Format Tests (edit different pendaftaran for each):
+    
+    [ ] 08123456789 → Should normalize to 628123456789 ✅
+        Sent to: ________________
+    
+    [ ] 628123456789 → Should stay 628123456789 ✅
+        Sent to: ________________
+    
+    [ ] 8123456789 → Should convert to 628123456789 ✅
+        Sent to: ________________
+    
+    Status: ____________________
+
+═════════════════════════════════════════════════════════════════════════════
+PERFORMANCE TEST
+═════════════════════════════════════════════════════════════════════════════
+
+[ ] 43. Measure Response Time
+    Action: Change status and time the save
+    Expected: ✅ < 5 seconds
+    Time: _____________ seconds
+    Status: ____________________
+
+[ ] 44. Check for Timeout
+    Expected: ✅ No timeout errors
+    Status: ____________________
+
+═════════════════════════════════════════════════════════════════════════════
+FINAL SUMMARY
+═════════════════════════════════════════════════════════════════════════════
+
+Total Tests: 44
+Passed: ___________
+Failed: ___________
+Skipped: __________
+
+CRITICAL TESTS (Must Pass):
+[ ] WhatsApp sent on status change
+[ ] Phone number normalization
+[ ] wa_sent flag updated
+[ ] No crashes on errors
+[ ] Logs recorded properly
+
+OVERALL RESULT:
+[ ] ✅ ALL PASS - READY FOR PRODUCTION
+[ ] ⚠️  SOME ISSUES - NEEDS FIXES
+[ ] ❌ FAILED - BLOCKING ISSUES
+
+Issues Found:
+_________________________________________________________________
+_________________________________________________________________
+_________________________________________________________________
+
+Notes:
+_________________________________________________________________
+_________________________________________________________________
+
+Next Steps:
+[ ] Ready to deploy
+[ ] Needs fixes
+[ ] Need more testing
+
+Signed: ________________   Date: __________

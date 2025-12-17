@@ -1,4 +1,5 @@
-@extends('layouts.admin.app')
+@php $layout = request()->is('admin-panel/*') ? 'layouts.admin-panel.app' : 'layouts.admin.app'; @endphp
+@extends($layout)
 
 @section('title', 'Kelola Pendaftaran - HIMA Sistem Manajemen')
 
@@ -208,8 +209,8 @@
                     
                     <div id="ditolakContent" style="display: none;">
                         <div class="mb-3">
-                            <label for="alasan_penolakan" class="form-label">Alasan Penolakan</label>
-                            <textarea class="form-control" id="alasan_penolakan" name="alasan_penolakan" 
+                            <label for="notes" class="form-label">Alasan Penolakan</label>
+                            <textarea class="form-control" id="notes" name="notes" 
                                       rows="3" placeholder="Berikan alasan penolakan..."></textarea>
                         </div>
                     </div>

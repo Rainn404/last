@@ -15,7 +15,11 @@ class Mahasiswa extends Model
         'nama',
         'nim',
         'angkatan',
-        'status'
+        'status',
+        'ipk',
+        'juara',
+        'tingkatan',
+        'keterangan'
     ];
 
     protected $casts = [

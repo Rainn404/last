@@ -1,4 +1,4 @@
-@extends('layouts.app_admin')
+@extends('layouts.app_user')
 
 @section('title','Ubah Password')
 

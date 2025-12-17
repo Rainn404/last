@@ -27,22 +27,27 @@ class MahasiswaImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
         // Cek apakah NIM sudah ada, jika ya update, jika tidak create
         $mahasiswa = Mahasiswa::where('nim', $nim)->first();
 
+        // Prepare data array dengan semua field
+        $data = [
+            'nama' => $row['nama'] ?? null,
+            'angkatan' => isset($row['angkatan']) ? (int)$row['angkatan'] : null,
+            'status' => $row['status'] ?? null,
+            'ipk' => isset($row['ipk']) ? (float)$row['ipk'] : null,
+            'juara' => isset($row['juara']) ? (int)$row['juara'] : null,
+            'tingkatan' => isset($row['tingkatan']) ? (int)$row['tingkatan'] : null,
+            'keterangan' => isset($row['keterangan']) ? (int)$row['keterangan'] : null,
+        ];
+
         if ($mahasiswa) {
             // Update data yang sudah ada
-            $mahasiswa->update([
-                'nama' => $row['nama'],
-                'angkatan' => $row['angkatan'],
-                'status' => $row['status'],
-            ]);
+            $mahasiswa->update($data);
             return null;
         }
 
         // Create data baru
         return new Mahasiswa([
             'nim' => $nim,
-            'nama' => $row['nama'],
-            'angkatan' => $row['angkatan'],
-            'status' => $row['status'],
+            ...$data
         ]);
     }
 
@@ -77,6 +82,27 @@ class MahasiswaImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
             'status' => [
                 'nullable',
                 Rule::in(['Aktif', 'Non-Aktif', 'Cuti'])
+            ],
+            'ipk' => [
+                'nullable',
+                'numeric',
+                'min:0',
+                'max:4'
+            ],
+            'juara' => [
+                'nullable',
+                'integer',
+                'min:1'
+            ],
+            'tingkatan' => [
+                'nullable',
+                'integer',
+                Rule::in([1, 3, 5, 7, 9])
+            ],
+            'keterangan' => [
+                'nullable',
+                'integer',
+                Rule::in([1, 3])
             ]
         ];
     }

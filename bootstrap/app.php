@@ -6,6 +6,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 
 // ⬅️ Tambahkan import middleware custom di sini
 use App\Http\Middleware\IsAdmin;
+use App\Http\Middleware\AdminPanel;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -18,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // ⬅️ REGISTER alias middleware router di Laravel 11
         $middleware->alias([
             'isadmin' => IsAdmin::class,
+            'admin_panel' => AdminPanel::class,
         ]);
 
     })

@@ -20,6 +20,7 @@ class MahasiswaController extends Controller
     {
         $search = $request->get('search');
         $status = $request->get('status');
+        $angkatan = $request->get('angkatan');
 
         $query = Mahasiswa::query();
 
@@ -36,6 +37,11 @@ class MahasiswaController extends Controller
             $query->where('status', $status);
         }
 
+        // Angkatan filter
+        if ($angkatan) {
+            $query->where('angkatan', $angkatan);
+        }
+
         $mahasiswa = $query->orderBy('nim')->paginate(15);
 
         // Get status counts for dashboard
@@ -46,7 +52,13 @@ class MahasiswaController extends Controller
             'cuti' => Mahasiswa::where('status', 'Cuti')->count(),
         ];
 
-        return view('admin.mahasiswa.index', compact('mahasiswa', 'statusCounts', 'search', 'status'));
+        // Get list of angkatan for filter dropdown
+        $angkatanList = Mahasiswa::distinct()
+            ->whereNotNull('angkatan')
+            ->orderBy('angkatan', 'desc')
+            ->pluck('angkatan');
+
+        return view('admin.mahasiswa.index', compact('mahasiswa', 'statusCounts', 'search', 'status', 'angkatan', 'angkatanList'));
     }
 
     /**

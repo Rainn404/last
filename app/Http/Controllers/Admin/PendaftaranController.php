@@ -9,11 +9,17 @@ use App\Models\Divisi;
 use App\Models\Jabatan;
 use App\Models\PendaftaranSetting;
 use App\Models\User;
+use App\Enums\PendaftaranStatus;
+use App\Services\CreateAnggotaService;
+use App\Services\WhatsAppService;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use App\Jobs\SendWaNotification;
 
 class PendaftaranController extends Controller
 {
@@ -44,8 +50,8 @@ class PendaftaranController extends Controller
             $pendaftaran = $this->getFilteredPendaftaran($request);
 
             // Ambil data divisi dan jabatan untuk form validasi
-            $divisi = Divisi::where('status', 'active')->get();
-            $jabatan = Jabatan::where('status', 'active')->get();
+            $divisi = Divisi::where('status', 1)->get();
+            $jabatan = Jabatan::where('status', 1)->get();
 
             return view('admin.pendaftaran.index', compact(
                 'settings', 
@@ -82,9 +88,12 @@ class PendaftaranController extends Controller
                 'jabatan'
             ])->findOrFail($id);
 
+            // Convert to array untuk ensure semua field termasuk
+            $data = $pendaftaran->toArray();
+            
             return response()->json([
                 'success' => true,
-                'data' => $pendaftaran
+                'data' => $data
             ]);
 
         } catch (\Exception $e) {
@@ -112,7 +121,7 @@ class PendaftaranController extends Controller
             $pendaftaran = Pendaftaran::with(['user', 'divisi', 'jabatan'])
                 ->findOrFail($id);
                 
-            $divisi = Divisi::where('status', 'active')->get();
+            $divisi = Divisi::where('status', 1)->get();
             $jabatan = Jabatan::where('status', 'active')->get();
             
             return view('admin.pendaftaran.partials.edit_form', compact(
@@ -150,9 +159,9 @@ class PendaftaranController extends Controller
             'pengalaman' => 'nullable|string|max:1000',
             'skill' => 'nullable|string|max:1000',
             'status_pendaftaran' => 'required|in:pending,diterima,ditolak',
-            'id_divisi' => 'nullable|required_if:status_pendaftaran,diterima|exists:divisi,id_divisi',
-            'id_jabatan' => 'nullable|required_if:status_pendaftaran,diterima|exists:jabatan,id_jabatan',
-            'alasan_penolakan' => 'nullable|string|max:500',
+            'id_divisi' => 'nullable|required_if:status_pendaftaran,diterima|exists:divisis,id_divisi',
+            'id_jabatan' => 'nullable|required_if:status_pendaftaran,diterima|exists:jabatans,id_jabatan',
+            'notes' => 'nullable|string|max:1000',
             'dokumen' => 'nullable|file|mimes:pdf,doc,docx|max:2048'
         ];
 
@@ -184,7 +193,7 @@ class PendaftaranController extends Controller
             if ($request->status_pendaftaran == 'diterima') {
                 $pendaftaran->id_divisi = $request->id_divisi;
                 $pendaftaran->id_jabatan = $request->id_jabatan;
-                $pendaftaran->alasan_penolakan = null;
+                $pendaftaran->notes = null;
                 $pendaftaran->divalidasi_oleh = auth()->id();
                 $pendaftaran->validated_at = now();
                 
@@ -197,13 +206,13 @@ class PendaftaranController extends Controller
                     }
                 }
             } else if ($request->status_pendaftaran == 'ditolak') {
-                $pendaftaran->alasan_penolakan = $request->alasan_penolakan;
+                $pendaftaran->notes = $request->notes;
                 $pendaftaran->id_divisi = null;
                 $pendaftaran->id_jabatan = null;
                 $pendaftaran->divalidasi_oleh = auth()->id();
                 $pendaftaran->validated_at = now();
             } else {
-                $pendaftaran->alasan_penolakan = null;
+                $pendaftaran->notes = null;
                 $pendaftaran->validator_id = null;
                 $pendaftaran->validated_at = null;
             }
@@ -224,10 +233,16 @@ class PendaftaranController extends Controller
             $pendaftaran->save();
 
             DB::commit();
+            DB::commit();
 
-            $message = $statusChanged ? 
-                "Status pendaftaran berhasil diubah menjadi " . $request->status_pendaftaran : 
+            $message = $statusChanged ?
+                "Status pendaftaran berhasil diubah menjadi " . $request->status_pendaftaran :
                 "Data pendaftaran berhasil diperbarui";
+
+            // Jika status berubah, dispatch notifikasi WA ke job queue
+            if ($statusChanged) {
+                SendWaNotification::dispatch($pendaftaran->id, $request->status_pendaftaran);
+            }
 
             return redirect()->route('admin.pendaftaran.index')
                 ->with('success', $message);
@@ -445,75 +460,315 @@ class PendaftaranController extends Controller
     }
 
     /**
+     * Bulk update interview untuk semua pending
+     */
+    public function bulkInterview(Request $request)
+    {
+        // Validasi admin access
+        if (!Auth::check()) {
+            return response()->json(['success' => false, 'message' => 'Anda tidak memiliki akses.'], 401);
+        }
+
+        // Validasi input
+        $request->validate([
+            'interview_date' => 'required|date|after_or_equal:today'
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // Get all pending pendaftaran
+            $pendaftaranList = Pendaftaran::where('status_pendaftaran', 'pending')->get();
+
+            if ($pendaftaranList->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak ada pendaftaran dengan status Pending'
+                ], 422);
+            }
+
+            // Update semua ke interview status dengan interview_date
+            $updatedCount = 0;
+            foreach ($pendaftaranList as $pendaftaran) {
+                $pendaftaran->status_pendaftaran = 'interview';
+                $pendaftaran->interview_date = $request->interview_date;
+                $pendaftaran->divalidasi_oleh = auth()->id();
+                $pendaftaran->validated_at = now();
+                $pendaftaran->wa_sent = false; // Reset untuk allow wa send
+                $pendaftaran->save();
+
+                // Send WhatsApp notification
+                try {
+                    $waService = new WhatsAppService();
+                    $waService->send($pendaftaran, 'interview');
+                    Log::info('Bulk interview WA sent', ['pendaftaran_id' => $pendaftaran->id_pendaftaran]);
+                } catch (\Exception $waException) {
+                    Log::warning('Bulk interview WA failed', [
+                        'pendaftaran_id' => $pendaftaran->id_pendaftaran,
+                        'error' => $waException->getMessage()
+                    ]);
+                }
+
+                $updatedCount++;
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => "Berhasil menjadwalkan interview untuk {$updatedCount} pendaftar pada " . \Carbon\Carbon::parse($request->interview_date)->format('d M Y'),
+                'updated_count' => $updatedCount
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Bulk interview error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menjadwalkan interview: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Bulk accept untuk semua interview
+     */
+    public function bulkAccept(Request $request)
+    {
+        // Validasi admin access
+        if (!Auth::check()) {
+            return response()->json(['success' => false, 'message' => 'Anda tidak memiliki akses.'], 401);
+        }
+
+        // Validasi input
+        $request->validate([
+            'id_jabatan' => 'required|exists:jabatans,id_jabatan'
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // Get all interview pendaftaran
+            $pendaftaranList = Pendaftaran::where('status_pendaftaran', 'interview')->get();
+
+            if ($pendaftaranList->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak ada pendaftaran dengan status Interview'
+                ], 422);
+            }
+
+            // Get jabatan info untuk pesan
+            $jabatan = \App\Models\Jabatan::find($request->id_jabatan);
+
+            // Update semua ke accepted status dengan divisi masing-masing dan jabatan yang sama
+            $updatedCount = 0;
+            foreach ($pendaftaranList as $pendaftaran) {
+                $pendaftaran->status_pendaftaran = 'diterima';
+                // Divisi tetap dari divisi yang dipilih saat pendaftar mendaftar
+                $pendaftaran->id_jabatan = $request->id_jabatan;
+                $pendaftaran->divalidasi_oleh = auth()->id();
+                $pendaftaran->validated_at = now();
+                $pendaftaran->wa_sent = false; // Reset untuk allow wa send
+                $pendaftaran->notes = null; // Clear notes
+                $pendaftaran->save();
+
+                // Create user dan anggota otomatis
+                try {
+                    $anggotaService = new CreateAnggotaService();
+                    $result = $anggotaService->createFromPendaftaran($pendaftaran);
+                    
+                    if ($result['success']) {
+                        Log::info("Bulk accept: Anggota created", [
+                            'pendaftaran_id' => $pendaftaran->id_pendaftaran,
+                            'user_id' => $result['user']->id
+                        ]);
+                    }
+                } catch (\Exception $anggotaException) {
+                    Log::warning('Bulk accept: Failed to create anggota', [
+                        'pendaftaran_id' => $pendaftaran->id_pendaftaran,
+                        'error' => $anggotaException->getMessage()
+                    ]);
+                }
+
+                // Send WhatsApp notification
+                try {
+                    $waService = new WhatsAppService();
+                    $waService->send($pendaftaran, 'diterima');
+                    Log::info('Bulk accept WA sent', ['pendaftaran_id' => $pendaftaran->id_pendaftaran]);
+                } catch (\Exception $waException) {
+                    Log::warning('Bulk accept WA failed', [
+                        'pendaftaran_id' => $pendaftaran->id_pendaftaran,
+                        'error' => $waException->getMessage()
+                    ]);
+                }
+
+                $updatedCount++;
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => "Berhasil menerima {$updatedCount} pendaftar sebagai " . ($jabatan ? $jabatan->nama_jabatan : 'Anggota') . " di divisi masing-masing",
+                'updated_count' => $updatedCount
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Bulk accept error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menerima pendaftar: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Update status pendaftaran (terima/tolak)
      */
     public function updateStatus(Request $request, $id)
     {
         // Validasi admin access
         if (!Auth::check()) {
-            return redirect()->route('admin.dashboard')->with('error', 'Anda tidak memiliki akses.');
+            return response()->json(['success' => false, 'message' => 'Anda tidak memiliki akses.'], 401);
         }
 
-        $validator = Validator::make($request->all(), [
-            'status_pendaftaran' => 'required|in:diterima,ditolak',
-            'id_divisi' => 'required_if:status_pendaftaran,diterima|exists:divisi,id_divisi',
-            'id_jabatan' => 'required_if:status_pendaftaran,diterima|exists:jabatan,id_jabatan',
-            'alasan_penolakan' => 'nullable|required_if:status_pendaftaran,ditolak|string|max:500'
+        // Validate only required fields for status update
+        $validator = Validator::make($request->only(['status_pendaftaran', 'interview_date', 'notes']), [
+            'status_pendaftaran' => 'required|in:' . PendaftaranStatus::validationString(),
+            'interview_date' => 'nullable|required_if:status_pendaftaran,interview|date|after_or_equal:today',
+            'notes' => 'nullable|string|max:500'
         ]);
 
         if ($validator->fails()) {
+            $message = $validator->errors()->first();
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Validasi gagal: ' . $message,
+                    'errors' => $validator->errors()
+                ], 422);
+            }
             return redirect()->back()
                 ->withErrors($validator)
-                ->with('error', 'Validasi gagal: ' . $validator->errors()->first());
+                ->with('error', 'Validasi gagal: ' . $message);
         }
 
         try {
             DB::beginTransaction();
 
             $pendaftaran = Pendaftaran::findOrFail($id);
+            $oldStatus = $pendaftaran->status_pendaftaran;
             
-            // Validasi kuota jika status diterima
-            if ($request->status_pendaftaran == 'diterima') {
+            // Use the status value directly (frontend now sends correct enum values)
+            $newStatus = $request->status_pendaftaran;
+            
+            // Check if status actually changed
+            $statusChanged = $oldStatus !== $newStatus;
+            
+            // Validasi kuota jika status diterima (hanya untuk penerimaan baru, bukan update)
+            if ($newStatus == PendaftaranStatus::ACCEPTED->value && $statusChanged) {
                 $kuotaCheck = $this->checkKuotaPenerimaan();
                 if (!$kuotaCheck['available']) {
-                    return redirect()->back()
-                        ->with('error', $kuotaCheck['message']);
+                    if ($request->expectsJson()) {
+                        return response()->json(['success' => false, 'message' => $kuotaCheck['message']], 422);
+                    }
+                    return redirect()->back()->with('error', $kuotaCheck['message']);
                 }
             }
 
-            $pendaftaran->status_pendaftaran = $request->status_pendaftaran;
+            // Only update specific fields
+            $pendaftaran->status_pendaftaran = $newStatus;
             $pendaftaran->divalidasi_oleh = auth()->id();
             $pendaftaran->validated_at = now();
 
-            if ($request->status_pendaftaran == 'diterima') {
-                $pendaftaran->id_divisi = $request->id_divisi;
-                $pendaftaran->id_jabatan = $request->id_jabatan;
-                $pendaftaran->alasan_penolakan = null;
-                
-                // Update user role menjadi anggota
-                $user = User::find($pendaftaran->user_id);
-                if ($user) {
-                    $user->role = 'anggota';
-                    $user->save();
-                }
-            } else {
-                $pendaftaran->alasan_penolakan = $request->alasan_penolakan;
-                $pendaftaran->id_divisi = null;
-                $pendaftaran->id_jabatan = null;
+            // Set interview_date if status is interview
+            if ($newStatus == PendaftaranStatus::INTERVIEW->value) {
+                $pendaftaran->interview_date = $request->interview_date;
+            }
+
+            // Set notes if provided (untuk alasan ditolak atau info lainnya)
+            if ($request->has('notes') && $request->notes) {
+                $pendaftaran->notes = $request->notes;
+            } elseif ($newStatus !== PendaftaranStatus::REJECTED->value) {
+                // Clear notes jika bukan ditolak
+                $pendaftaran->notes = null;
+            }
+
+            // Reset wa_sent flag jika status berubah (untuk memungkinkan pengiriman ulang)
+            if ($statusChanged) {
+                $pendaftaran->wa_sent = false;
             }
 
             $pendaftaran->save();
 
+            // 🔹 If status is "diterima", automatically create user and anggota
+            if ($newStatus == PendaftaranStatus::ACCEPTED->value) {
+                $anggotaService = new CreateAnggotaService();
+                $result = $anggotaService->createFromPendaftaran($pendaftaran);
+                
+                if ($result['success']) {
+                    Log::info("Anggota created successfully", [
+                        'pendaftaran_id' => $pendaftaran->id_pendaftaran,
+                        'user_id' => $result['user']->id,
+                        'anggota_id' => $result['anggota']->id_anggota_hima
+                    ]);
+                } else {
+                    Log::warning("Failed to create anggota", [
+                        'pendaftaran_id' => $pendaftaran->id_pendaftaran,
+                        'error' => $result['message']
+                    ]);
+                }
+            }
+
             DB::commit();
 
-            $statusText = $request->status_pendaftaran == 'diterima' ? 'diterima' : 'ditolak';
-            return redirect()->back()
-                ->with('success', "Pendaftaran berhasil di{$statusText}");
+            // 🟢 KIRIM WHATSAPP HANYA JIKA STATUS BERUBAH & BELUM PERNAH DIKIRIM
+            if ($statusChanged && !$pendaftaran->wa_sent) {
+                try {
+                    $waService = new WhatsAppService();
+                    $waResult = $waService->send($pendaftaran, $newStatus);
+                    
+                    Log::info('WhatsApp notification result', $waResult);
+                } catch (\Exception $waException) {
+                    Log::error('WhatsApp service error', [
+                        'pendaftaran_id' => $id,
+                        'error' => $waException->getMessage()
+                    ]);
+                    // Jangan stop proses jika WA gagal
+                }
+            }
+
+            $message = match($newStatus) {
+                PendaftaranStatus::ACCEPTED->value => 'Pendaftaran berhasil diterima dan akun anggota telah dibuat',
+                PendaftaranStatus::REJECTED->value => 'Pendaftaran berhasil ditolak',
+                PendaftaranStatus::INTERVIEW->value => 'Jadwal interview berhasil disimpan',
+                default => 'Status berhasil diubah'
+            };
+
+            if ($request->expectsJson()) {
+                return response()->json(['success' => true, 'message' => $message]);
+            }
+
+            return redirect()->back()->with('success', $message);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()
-                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            $message = 'Terjadi kesalahan: ' . $e->getMessage();
+            
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => $message], 500);
+            }
+            return redirect()->back()->with('error', $message);
         }
     }
 
@@ -705,6 +960,7 @@ class PendaftaranController extends Controller
         return [
             'totalPendaftaran' => Pendaftaran::count(),
             'pendingCount' => Pendaftaran::where('status_pendaftaran', 'pending')->count(),
+            'interviewCount' => Pendaftaran::where('status_pendaftaran', 'interview')->count(),
             'diterimaCount' => Pendaftaran::where('status_pendaftaran', 'diterima')->count(),
             'ditolakCount' => Pendaftaran::where('status_pendaftaran', 'ditolak')->count(),
             'todayCount' => Pendaftaran::whereDate('created_at', today())->count(),
@@ -747,7 +1003,9 @@ class PendaftaranController extends Controller
             $query->whereDate('created_at', '<=', $request->end_date);
         }
 
-        $query->orderBy('created_at', 'desc');
+        // Sort by nama, then by created_at
+        $query->orderBy('nama', 'asc')
+              ->orderBy('created_at', 'desc');
 
         return $paginate ? $query->paginate(10) : $query->get();
     }
@@ -802,5 +1060,27 @@ class PendaftaranController extends Controller
             'terpakai' => $totalDiterima,
             'sisa' => $settings ? $settings->kuota - $totalDiterima : 0
         ];
+    }
+
+    /**
+     * Get jabatan berdasarkan divisi
+     */
+    public function getJabatanByDivisi($idDivisi)
+    {
+        try {
+            $jabatans = Jabatan::where('id_divisi', $idDivisi)
+                ->where('status', 1)
+                ->get(['id_jabatan', 'nama_jabatan']);
+            
+            return response()->json([
+                'success' => true,
+                'data' => $jabatans
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data jabatan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Pendaftaran;
 use App\Models\PendaftaranSetting;
 use App\Models\User;
+use App\Models\Divisi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -69,8 +70,11 @@ class PendaftaranController extends Controller
             // Hitung kuota tersisa
             $kuotaTersisa = $settings->kuota - $totalDiterima;
 
+            // Load divisi yang aktif
+            $divisi = Divisi::where('status', 1)->get();
+
             // Jika semua kondisi terpenuhi, tampilkan form
-            return view('users.pendaftaran.create', compact('settings', 'kuotaTersisa', 'totalDiterima'));
+            return view('users.pendaftaran.create', compact('settings', 'kuotaTersisa', 'totalDiterima', 'divisi'));
 
         } catch (\Exception $e) {
             return view('users.pendaftaran.closed')->with([
@@ -131,6 +135,8 @@ class PendaftaranController extends Controller
             'semester' => 'required|integer|between:1,8',
             'no_hp' => 'required|string|max:20',
             'alasan_mendaftar' => 'required|string|min:50|max:1000',
+            'id_divisi' => 'required|exists:divisis,id_divisi',
+            'alasan_divisi' => 'required|string|min:20|max:1000',
             'pengalaman' => 'nullable|string|max:1000',
             'skill' => 'nullable|string|max:1000',
             'dokumen' => 'nullable|file|mimes:pdf,doc,docx,jpg,png|max:2048',
@@ -189,6 +195,8 @@ class PendaftaranController extends Controller
                 'semester' => $request->semester,
                 'no_hp' => $request->no_hp,
                 'alasan_mendaftar' => $request->alasan_mendaftar,
+                'id_divisi' => $request->id_divisi,
+                'alasan_divisi' => $request->alasan_divisi,
                 'pengalaman' => $request->pengalaman,
                 'skill' => $request->skill,
                 'dokumen' => $dokumenPath,

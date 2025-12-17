@@ -46,7 +46,7 @@
         </div>
         <div class="mb-3">
             <label class="form-label">Alasan Penolakan</label>
-            <textarea class="form-control" name="alasan_penolakan" rows="3">{{ $pendaftaran->alasan_penolakan }}</textarea>
+            <textarea class="form-control" name="notes" rows="3">{{ $pendaftaran->notes }}</textarea>
         </div>
     </div>
 </div>

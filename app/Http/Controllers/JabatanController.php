@@ -42,7 +42,7 @@ class JabatanController extends Controller
 
     public function edit($id)
     {
-        $jabatan = Jabatan::findOrFail($id);
+        $jabatan = Jabatan::where('id_jabatan', $id)->firstOrFail();
         return view('admin.jabatan.edit', compact('jabatan'));
     }
 
@@ -55,7 +55,7 @@ class JabatanController extends Controller
             'status' => 'boolean'
         ]);
 
-        $jabatan = Jabatan::findOrFail($id);
+        $jabatan = Jabatan::where('id_jabatan', $id)->firstOrFail();
         $jabatan->update([
             'nama_jabatan' => $request->nama_jabatan,
             'deskripsi' => $request->deskripsi,
@@ -69,7 +69,7 @@ class JabatanController extends Controller
 
     public function destroy($id)
     {
-        $jabatan = Jabatan::findOrFail($id);
+        $jabatan = Jabatan::where('id_jabatan', $id)->firstOrFail();
         $jabatan->delete();
 
         return redirect()->route('admin.jabatan.index')
@@ -78,7 +78,7 @@ class JabatanController extends Controller
 
     public function toggleStatus($id)
     {
-        $jabatan = Jabatan::findOrFail($id);
+        $jabatan = Jabatan::where('id_jabatan', $id)->firstOrFail();
         $jabatan->update([
             'status' => !$jabatan->status
         ]);

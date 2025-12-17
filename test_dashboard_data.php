@@ -19,7 +19,7 @@ foreach ($users as $user) {
 
 echo "\n=== DASHBOARD STATS ===\n";
 echo "Total AnggotaHima: " . AnggotaHima::count() . "\n";
-echo "Total Divisi (active): " . Divisi::where('status', 'active')->count() . "\n";
+echo "Total Divisi (active): " . Divisi::where('status', 1)->count() . "\n";
 echo "Total Prestasi: " . Prestasi::count() . "\n";
 echo "  - Disetujui: " . Prestasi::where('status_validasi', 'disetujui')->count() . "\n";
 echo "  - Pending: " . Prestasi::where('status_validasi', 'pending')->count() . "\n";

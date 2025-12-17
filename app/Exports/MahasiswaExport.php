@@ -44,7 +44,11 @@ class MahasiswaExport implements FromCollection, WithHeadings, WithMapping, With
                 'nim',
                 'nama',
                 'angkatan',
-                'status'
+                'status',
+                'ipk',
+                'juara',
+                'tingkatan',
+                'keterangan'
             ];
         }
 
@@ -53,6 +57,10 @@ class MahasiswaExport implements FromCollection, WithHeadings, WithMapping, With
             'NAMA MAHASISWA',
             'ANGKATAN',
             'STATUS',
+            'IPK',
+            'JUARA',
+            'TINGKATAN',
+            'KETERANGAN',
             'TANGGAL DIBUAT',
             'TANGGAL DIPERBARUI'
         ];
@@ -66,13 +74,27 @@ class MahasiswaExport implements FromCollection, WithHeadings, WithMapping, With
                 '1234567890', // nim
                 'Nama Mahasiswa', // nama
                 '2021', // angkatan
-                'Aktif' // status
+                'Aktif', // status
+                '3.5', // ipk
+                '1', // juara
+                '3', // tingkatan (1=Internal, 3=Kabupaten, 5=Provinsi, 7=Nasional, 9=Internasional)
+                '1' // keterangan (1=Non-Akademik, 3=Akademik)
             ];
         }
 
         return [
             $mahasiswa->nim,
             $mahasiswa->nama,
+            $mahasiswa->angkatan ?? '-',
+            $mahasiswa->status ?? '-',
+            $mahasiswa->ipk ?? '-',
+            $mahasiswa->juara ?? '-',
+            $mahasiswa->tingkatan ?? '-',
+            $mahasiswa->keterangan ?? '-',
+            $mahasiswa->created_at ? $mahasiswa->created_at->format('d/m/Y H:i') : '-',
+            $mahasiswa->updated_at ? $mahasiswa->updated_at->format('d/m/Y H:i') : '-'
+        ];
+    }
             $mahasiswa->angkatan,
             $mahasiswa->status,
             $mahasiswa->created_at ? $mahasiswa->created_at->format('d/m/Y H:i') : '-',

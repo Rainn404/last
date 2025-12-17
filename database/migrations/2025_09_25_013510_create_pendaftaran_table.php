@@ -19,6 +19,10 @@ return new class extends Migration
             $table->tinyInteger('semester')->nullable();
             $table->text('alasan_mendaftar')->nullable();
             
+            // Divisi yang dipilih saat mendaftar (wajib)
+            $table->foreignId('id_divisi')->constrained('divisis', 'id_divisi')->onDelete('restrict');
+            $table->text('alasan_divisi');
+            
             // TAMBAHKAN KOLOM INI ↓
             $table->text('pengalaman')->nullable();
             $table->text('skill')->nullable();

@@ -10,17 +10,60 @@ use App\Models\Berita;
 use App\Models\Pendaftaran;
 use App\Models\Mahasiswa;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
+    public function __construct()
+    {
+        // Apply middleware di constructor untuk semua method
+        $this->middleware(['auth']);
+    }
+
     /**
-     * Display dashboard page with real database statistics
+     * Display dashboard page - role-based
+     * 
+     * Akses:
+     * - mahasiswa: hanya dashboard pribadi (jika ada)
+     * - anggota: dashboard anggota
+     * - super_admin: admin dashboard
+     * - Mahasiswa TIDAK bisa akses admin/anggota
+     * - Anggota TIDAK bisa akses super_admin
      */
     public function index()
     {
+        $user = Auth::user();
+
+        // Mahasiswa hanya bisa akses dashboard pribadi
+        if ($user->role === 'mahasiswa') {
+            // Redirect mahasiswa ke home atau user dashboard
+            return redirect('/home')->with('warning', 'Akses dashboard admin hanya untuk admin dan anggota');
+        }
+
+        // Anggota bisa akses anggota dashboard
+        if ($user->role === 'anggota') {
+            return $this->anggotaDashboard();
+        }
+
+        // Super admin dan admin bisa akses admin dashboard
+        if ($user->role === 'super_admin' || $user->role === 'admin') {
+            return $this->adminDashboard();
+        }
+
+        // Jika role tidak dikenali, redirect ke home
+        return redirect('/home');
+    }
+
+
+
+    /**
+     * Display admin dashboard page with real database statistics
+     */
+    public function adminDashboard()
+    {
         // Real time statistics from database
         $totalAnggota = AnggotaHima::count();
-        $totalDivisi = Divisi::where('status', 'active')->count();
+        $totalDivisi = Divisi::where('status', 1)->count();
         $totalPrestasi = Prestasi::count();
         $prestasiValid = Prestasi::where('status_validasi', 'disetujui')->count();
         $totalBerita = Berita::count();

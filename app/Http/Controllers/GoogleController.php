@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\GoogleRoleMapping;
 
 class GoogleController extends Controller
 {
@@ -19,35 +20,40 @@ class GoogleController extends Controller
         try {
             $googleUser = Socialite::driver('google')->user();
 
+            $email = $googleUser->getEmail();
+
+            // Tentukan role berdasarkan mapping (database)
+            $role = GoogleRoleMapping::findRoleForEmail($email);
+
             $user = User::updateOrCreate(
-                ['email' => $googleUser->getEmail()],
+                ['email' => $email],
                 [
-                    'name' => $googleUser->getName(),
+                    'name' => $googleUser->getName() ?? $email,
                     'google_id' => $googleUser->getId(),
                     'avatar' => $googleUser->getAvatar(),
                     'password' => bcrypt('google_login'),
-                    'role' => 'mahasiswa', // Default role untuk user Google baru
+                    'role' => $role,
                 ]
             );
 
-            Auth::login($user);
-
-            // 🔥 Jika email admin HIMA
-            if ($user->email === 'himapolitala.ti@gmail.com') {
-
-                // Pastikan role admin disimpan
-                if ($user->role !== 'admin') {
-                    $user->role = 'admin';
-                    $user->save();
-                }
-
-                return redirect()->route('admin.dashboard');
+            // Ensure role is synced (in case it changed in mapping)
+            if ($user->role !== $role) {
+                $user->update(['role' => $role]);
             }
 
-            // 🔥 User biasa ke beranda
-            return redirect()->route('home');
+            // Login user
+            Auth::login($user);
+            request()->session()->regenerate();
+
+            // Redirect berdasarkan role
+            return match($role) {
+                'super_admin' => redirect('/admin/pendaftaran'),
+                'admin' => redirect('/admin/dashboard'),
+                default => redirect('/'),
+            };
 
         } catch (\Exception $e) {
+            logger()->error('Google Login Error', ['exception' => $e]);
             return redirect('/login')->with('error', 'Login dengan Google gagal. Silakan coba lagi.');
         }
     }

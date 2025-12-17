@@ -1,0 +1,1 @@
+SELECT COUNT(*) as total, role, is_active FROM google_role_mappings GROUP BY role, is_active;

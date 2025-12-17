@@ -1,6 +1,7 @@
 
 <!-- resources/views/admin/mahasiswa/index.blade.php -->
-@extends('layouts.admin.app')
+@php $layout = request()->is('admin-panel/*') ? 'layouts.admin-panel.app' : 'layouts.admin.app'; @endphp
+@extends($layout)
 
 @section('title', 'Data Mahasiswa - Admin')
 
@@ -34,18 +35,39 @@
                     <h6 class="m-0 font-weight-bold text-center" style="color: #1a73e8;">Data Mahasiswa Teknologi Informasi</h6>
                 </div>
                 <div class="card-body">
-                    <!-- Search Form -->
+                    <!-- Search & Filter Form -->
                     <form method="GET" action="{{ route('admin.mahasiswa.index') }}" class="mb-4">
                         <div class="row">
-                            <div class="col-md-6">
+                            <!-- Search Input -->
+                            <div class="col-md-4">
                                 <div class="input-group">
-                                    <input type="text" name="search" class="form-control" placeholder="Cari mahasiswa..." value="{{ $search ?? '' }}">
+                                    <input type="text" name="search" class="form-control" placeholder="Cari nama atau NIM..." value="{{ $search ?? '' }}">
                                     <div class="input-group-append">
                                         <button type="submit" class="btn" style="background-color: #1a73e8; color: white;">
                                             <i class="fas fa-search"></i>
                                         </button>
                                     </div>
                                 </div>
+                            </div>
+
+                            <!-- Status Filter -->
+                            <div class="col-md-4">
+                                <select name="status" class="form-control" onchange="this.form.submit()">
+                                    <option value="">-- Semua Status --</option>
+                                    <option value="Aktif" {{ $status == 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                                    <option value="Non-Aktif" {{ $status == 'Non-Aktif' ? 'selected' : '' }}>Non-Aktif</option>
+                                    <option value="Cuti" {{ $status == 'Cuti' ? 'selected' : '' }}>Cuti</option>
+                                </select>
+                            </div>
+
+                            <!-- Angkatan Filter -->
+                            <div class="col-md-4">
+                                <select name="angkatan" class="form-control" onchange="this.form.submit()">
+                                    <option value="">-- Semua Angkatan --</option>
+                                    @foreach($angkatanList as $thn)
+                                        <option value="{{ $thn }}" {{ $angkatan == $thn ? 'selected' : '' }}>{{ $thn }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
                     </form>
@@ -70,6 +92,9 @@
                                     </td>
                                     <td class="align-middle">
                                         <strong>{{ $mahasiswas->nama }}</strong>
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        <strong>{{ $mahasiswas->angkatan ?? '-' }}</strong>
                                     </td>
                                     <td class="text-center align-middle">
                                         @if($mahasiswas->status == 'Aktif')
@@ -115,6 +140,7 @@
 
                     <!-- Pagination -->
 
+                    @if($mahasiswa->hasPages())
                     <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 pt-3 border-top">
                         <!-- Info Hasil -->
                         <div class="mb-3 mb-md-0">
@@ -142,7 +168,7 @@
                                         </li>
                                     @else
                                         <li class="page-item">
-                                            <a class="page-link border-0 text-primary" href="{{ $mahasiswas->previousPageUrl() }}" aria-label="Previous">
+                                            <a class="page-link border-0 text-primary" href="{{ $mahasiswa->previousPageUrl() }}" aria-label="Previous">
                                                 <i class="fas fa-chevron-left fa-xs mr-1"></i> Previous
                                             </a>
                                         </li>
@@ -183,6 +209,7 @@
                             </nav>
                         </div>
                     </div>
+                    @endif
 
                 </div>
             </div>

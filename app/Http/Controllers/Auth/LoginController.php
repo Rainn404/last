@@ -23,20 +23,18 @@ class LoginController extends Controller
             'password' => 'required',
         ]);
 
-        // Coba login dengan guard web (untuk semua user)
+        // Coba login dengan guard web
         if (Auth::guard('web')->attempt($credentials)) {
             $request->session()->regenerate();
 
             $user = Auth::guard('web')->user();
 
-            // Redirect berdasarkan role
-            if ($user->role === 'super_admin') {
-                return redirect()->intended('/admin/pendaftaran');
-            } elseif ($user->role === 'admin') {
-                return redirect()->intended('/admin/dashboard');
-            } else {
-                return redirect()->intended('/dashboard');
-            }
+            // Redirect berdasarkan role - JANGAN gunakan intended() karena bisa redirect ke URL berbahaya
+            return match($user->role) {
+                'super_admin' => redirect('/admin/pendaftaran'),
+                'admin' => redirect('/admin/dashboard'),
+                default => redirect('/'),
+            };
         }
 
         return back()->withErrors([

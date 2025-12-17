@@ -15,7 +15,8 @@ class Jabatan extends Model
         'nama_jabatan',
         'deskripsi',
         'level',
-        'status'
+        'status',
+        'id_divisi'
     ];
 
     protected $casts = [

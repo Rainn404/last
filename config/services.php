@@ -42,4 +42,14 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    'wa_server' => [
+        // URL full endpoint to send messages, default to local server
+        'url' => env('WA_SERVER_URL', 'http://127.0.0.1:5000/send'),
+    ],
+
+    'fonnte' => [
+        'token' => env('FONNTE_TOKEN'),
+        'api_url' => 'https://api.fonnte.com/send',
+    ],
+
 ];

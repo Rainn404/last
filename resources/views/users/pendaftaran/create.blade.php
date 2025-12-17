@@ -139,6 +139,46 @@
                     </div>
                 </div>
 
+                <!-- Pilihan Divisi -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i class="fas fa-sitemap"></i>
+                        </div>
+                        <div class="section-content">
+                            <h3 class="section-title">Pilihan Divisi</h3>
+                            <p class="section-description">Pilih divisi yang ingin Anda ikuti</p>
+                        </div>
+                    </div>
+                    <div class="form-field">
+                        <label for="id_divisi" class="field-label">Divisi *</label>
+                        <select id="id_divisi" name="id_divisi" class="field-select" required>
+                            <option value="">Pilih Divisi</option>
+                            @if(isset($divisi) && $divisi->count() > 0)
+                                @foreach($divisi as $d)
+                                    <option value="{{ $d->id_divisi }}" {{ old('id_divisi') == $d->id_divisi ? 'selected' : '' }}>
+                                        {{ $d->nama_divisi ?? 'Divisi' }}
+                                    </option>
+                                @endforeach
+                            @endif
+                        </select>
+                        @error('id_divisi')
+                            <span class="field-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-field">
+                        <label for="alasan_divisi" class="field-label">Alasan Memilih Divisi Ini *</label>
+                        <textarea id="alasan_divisi" name="alasan_divisi" class="field-textarea" rows="3" required>{{ old('alasan_divisi') }}</textarea>
+                        <div class="field-help">
+                            Jelaskan singkat mengapa Anda memilih divisi ini (minimal 20 karakter)
+                        </div>
+                        @error('alasan_divisi')
+                            <span class="field-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </div>
+
                 <!-- Pengalaman Organisasi -->
                 <div class="form-section">
                     <div class="section-header">

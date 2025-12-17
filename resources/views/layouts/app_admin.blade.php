@@ -97,9 +97,9 @@
                         </div>
                     </div>
 
-                    <div class="dropdown">
-                        <button class="btn btn-link text-dark text-decoration-none dropdown-toggle d-flex align-items-center" 
-                                type="button" data-bs-toggle="dropdown">
+                    <div class="dropdown d-flex align-items-center">
+                        {{-- Clicking avatar/name goes directly to profile.show --}}
+                        <a href="{{ route('profile.show') }}" class="d-flex align-items-center text-dark text-decoration-none me-2">
                             @if(Auth::user()->avatar)
                                 <img src="{{ asset('storage/avatars/' . Auth::user()->avatar) }}" 
                                      alt="{{ Auth::user()->name }}" class="rounded-circle me-2" width="32" height="32">
@@ -108,7 +108,13 @@
                                      alt="{{ Auth::user()->name }}" class="rounded-circle me-2" width="32" height="32">
                             @endif
                             <span class="d-none d-md-inline">{{ Auth::user()->name }}</span>
+                        </a>
+
+                        {{-- Small caret button opens dropdown for other actions --}}
+                        <button class="btn btn-link text-dark p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-caret-down"></i>
                         </button>
+
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="{{ route('profile.show') }}"><i class="fas fa-user me-2"></i>Profil</a></li>
                             <li><a class="dropdown-item" href="{{ route('profile.edit') }}"><i class="fas fa-edit me-2"></i>Edit Profil</a></li>

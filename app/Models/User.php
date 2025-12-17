@@ -53,6 +53,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Scope untuk anggota (merged with admin)
+     */
+    public function scopeAnggota($query)
+    {
+        return $query->where('role', 'admin');
+    }
+
+    /**
      * Relasi dengan pendaftaran
      */
     public function pendaftaran()

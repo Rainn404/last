@@ -1,4 +1,5 @@
-@extends('layouts.admin.app')
+@php $layout = request()->is('admin-panel/*') ? 'layouts.admin-panel.app' : 'layouts.admin.app'; @endphp
+@extends($layout)
 
 @section('title', $title . ' - Admin HIMA-TI')
 

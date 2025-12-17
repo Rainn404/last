@@ -1,6 +1,7 @@
 
 <!-- resources/views/admin/mahasiswa/edit.blade.php -->
-@extends('layouts.admin.app')
+@php $layout = request()->is('admin-panel/*') ? 'layouts.admin-panel.app' : 'layouts.admin.app'; @endphp
+@extends($layout)
 
 @section('title', 'Edit Data Mahasiswa - HIMA-TI')
 

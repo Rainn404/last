@@ -28,6 +28,8 @@ use App\Http\Controllers\Admin\AnggotaController as AdminAnggotaController;
 use App\Http\Controllers\Admin\PrestasiController as AdminPrestasiController;
 use App\Http\Controllers\Admin\PendaftaranController as AdminPendaftaranController;
 
+
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -129,13 +131,13 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Komentar Management (ADMIN)
-    Route::middleware(['isadmin'])->group(function () {
-        Route::get('komentar', [AdminKomentarController::class, 'index'])
-            ->name('komentar.index');
+    Route::get('komentar', [AdminKomentarController::class, 'index'])
+        ->name('komentar.index')
+        ->middleware(\App\Http\Middleware\RoleMiddleware::class . ':admin');
 
-        Route::delete('komentar/{id}', [AdminKomentarController::class, 'destroy'])
-            ->name('komentar.destroy');
-    });
+    Route::delete('komentar/{id}', [AdminKomentarController::class, 'destroy'])
+        ->name('komentar.destroy')
+        ->middleware(\App\Http\Middleware\RoleMiddleware::class . ':admin');
 
     // Anggota Management
     Route::prefix('anggota')->name('anggota.')->group(function () {
@@ -171,8 +173,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::post('/{id}/toggle-status', [JabatanController::class, 'toggleStatus'])->name('toggle-status');
     });
 
-    // Prestasi Management - ADMIN
-    Route::prefix('prestasi')->name('prestasi.')->group(function () {
+    // Prestasi Management - ADMIN AND SUPER_ADMIN
+    Route::middleware(\App\Http\Middleware\RoleMiddleware::class . ':admin')->prefix('prestasi')->name('prestasi.')->group(function () {
         Route::get('/', [AdminPrestasiController::class, 'index'])->name('index');
         Route::get('/create', [AdminPrestasiController::class, 'create'])->name('create');
         Route::post('/', [AdminPrestasiController::class, 'store'])->name('store');
@@ -204,13 +206,12 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::delete('/{id}', [MahasiswaController::class, 'destroy'])->name('destroy');
     });
 
-
-
-    // Mahasiswa Bermasalah Management
-    Route::resource('mahasiswa-bermasalah', MahasiswaBermasalahController::class);
-    // TAMBAHKAN ROUTE INI UNTUK MULTIPLE MAHASISWA
-    Route::post('/mahasiswa-bermasalah/store-multiple', [MahasiswaBermasalahController::class, 'storeMultiple'])->name('mahasiswa-bermasalah.store-multiple');
-    Route::get('/mahasiswa-bermasalah/get-mahasiswa/{nim}', [MahasiswaBermasalahController::class, 'getMahasiswaByNim'])->name('mahasiswa-bermasalah.get-mahasiswa');
+    // Mahasiswa Bermasalah Management - ADMIN AND SUPER_ADMIN
+    Route::middleware(\App\Http\Middleware\RoleMiddleware::class . ':admin')->group(function () {
+        Route::resource('mahasiswa-bermasalah', MahasiswaBermasalahController::class);
+        Route::post('/mahasiswa-bermasalah/store-multiple', [MahasiswaBermasalahController::class, 'storeMultiple'])->name('mahasiswa-bermasalah.store-multiple');
+        Route::get('/mahasiswa-bermasalah/get-mahasiswa/{nim}', [MahasiswaBermasalahController::class, 'getMahasiswaByNim'])->name('mahasiswa-bermasalah.get-mahasiswa');
+    });
 
     // Pendaftaran Management
     Route::prefix('pendaftaran')->name('pendaftaran.')->group(function () {
@@ -218,12 +219,14 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::post('/buka-sesi', [AdminPendaftaranController::class, 'bukaSesi'])->name('buka-sesi');
         Route::post('/tutup-sesi', [AdminPendaftaranController::class, 'tutupSesi'])->name('tutup-sesi');
         Route::post('/update-settings', [AdminPendaftaranController::class, 'updateSettings'])->name('update-settings');
+        Route::post('/bulk-interview', [AdminPendaftaranController::class, 'bulkInterview'])->name('bulk-interview');
+        Route::post('/bulk-accept', [AdminPendaftaranController::class, 'bulkAccept'])->name('bulk-accept');
         Route::get('/status', [AdminPendaftaranController::class, 'getStatus'])->name('get-status');
+        Route::get('/jabatan-by-divisi/{idDivisi}', [AdminPendaftaranController::class, 'getJabatanByDivisi'])->name('jabatan-by-divisi');
         Route::get('/{pendaftaran}', [AdminPendaftaranController::class, 'show'])->name('show');
         Route::get('/{pendaftaran}/edit', [AdminPendaftaranController::class, 'edit'])->name('edit');
         Route::put('/{pendaftaran}', [AdminPendaftaranController::class, 'update'])->name('update');
         Route::put('/{pendaftaran}/update-status', [AdminPendaftaranController::class, 'updateStatus'])->name('update-status');
-        // Change registration stage/status (new workflow)
         Route::post('/{pendaftaran}/status', [AdminPendaftaranController::class, 'changeStatus'])->name('status');
         Route::delete('/{pendaftaran}', [AdminPendaftaranController::class, 'destroy'])->name('destroy');
     });
@@ -231,8 +234,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Berita Management
     Route::resource('berita', AdminBeritaController::class);
 
-    // Pelanggaran Management
-    Route::prefix('pelanggaran')->name('pelanggaran.')->group(function () {
+    // Pelanggaran Management - SUPER_ADMIN ONLY
+    Route::middleware(\App\Http\Middleware\RoleMiddleware::class . ':super_admin')->prefix('pelanggaran')->name('pelanggaran.')->group(function () {
         Route::get('/', [PelanggaranController::class, 'index'])->name('index');
         Route::get('/create', [PelanggaranController::class, 'create'])->name('create');
         Route::post('/', [PelanggaranController::class, 'store'])->name('store');
@@ -242,8 +245,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::delete('/{id}', [PelanggaranController::class, 'destroy'])->name('destroy');
     });
 
-    // Sanksi Management
-    Route::prefix('sanksi')->name('sanksi.')->group(function () {
+    // Sanksi Management - ADMIN AND SUPER_ADMIN
+    Route::middleware(\App\Http\Middleware\RoleMiddleware::class . ':admin')->prefix('sanksi')->name('sanksi.')->group(function () {
         Route::get('/', [SanksiController::class, 'index'])->name('index');
         Route::get('/create', [SanksiController::class, 'create'])->name('create');
         Route::post('/', [SanksiController::class, 'store'])->name('store');
@@ -300,6 +303,14 @@ Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->na
 Route::post('/register', [RegisterController::class, 'register']);
 
 // ========================
+// Admin Panel Routes (Pengurus HIMA)
+// ========================
+Route::middleware(['auth'])->prefix('admin-panel')->name('admin-panel.')->group(function () {
+    // Dashboard
+    Route::get('dashboard', [App\Http\Controllers\AdminPanel\AdminDashboardController::class, 'index'])->name('dashboard');
+});
+
+// ========================
 // User Dashboard Routes
 // ========================
 Route::middleware('auth')->group(function () {
@@ -315,3 +326,4 @@ Route::redirect('/admin', '/admin/dashboard');
 Route::fallback(function () {
     return view('errors.404');
 });
+
