@@ -3,12 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Criterion extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+
+    protected $table = 'criteria';
+    protected $primaryKey = 'id_criterion';
+    public $incrementing = true;
+    protected $keyType = 'int';
 
     protected $fillable = [
         'name',
@@ -16,12 +20,18 @@ class Criterion extends Model
         'description',
         'is_active',
         'order',
+        'priority',
+        'weight',
+        'status',
         'type'
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
-        'order'     => 'integer'
+        'order'     => 'integer',
+        'status'    => 'boolean',
+        'weight'    => 'float',
+        'priority'  => 'integer'
     ];
 
     /*

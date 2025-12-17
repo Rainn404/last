@@ -93,13 +93,12 @@ class DashboardController extends Controller
         
         // Jika kurang dari 4 activities, tambahkan dari Berita
         if (count($recentActivities) < 4) {
-            $beritaActivities = Berita::with('user')
-                ->orderBy('tanggal', 'desc')
+            $beritaActivities = Berita::orderBy('tanggal', 'desc')
                 ->limit(4 - count($recentActivities))
                 ->get()
                 ->map(function($berita) {
                     return [
-                        'text' => 'Berita ' . $berita->judul . ' dipublikasikan oleh ' . ($berita->user->name ?? 'Unknown'),
+                        'text' => 'Berita ' . $berita->judul . ' dipublikasikan oleh ' . ($berita->penulis ?? 'Unknown'),
                         'time' => isset($berita->tanggal) ? Carbon::parse($berita->tanggal)->diffForHumans() : 'Waktu tidak diketahui',
                         'type' => 'Berita',
                         'color' => 'info'

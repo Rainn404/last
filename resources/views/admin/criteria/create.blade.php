@@ -20,7 +20,7 @@
                 <form action="{{ route('admin.criteria.store') }}" method="POST" id="criterionForm">
                     @csrf
                     
-                    {{-- HANYA 2 FIELD: NAMA dan TIPE --}}
+                    {{-- Nama Kriteria --}}
                     <div class="mb-4">
                         <label for="name" class="form-label">
                             Nama Kriteria <span class="text-danger">*</span>
@@ -31,13 +31,14 @@
                                name="name" 
                                value="{{ old('name') }}"
                                required
-                               maxlength="100"
+                               maxlength="255"
                                placeholder="Contoh: Prestasi Akademik">
                         @error('name')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    
+
+                    {{-- Tipe Kriteria --}}
                     <div class="mb-4">
                         <label for="type" class="form-label">
                             Tipe Kriteria <span class="text-danger">*</span>

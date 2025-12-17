@@ -22,7 +22,7 @@
                 </span>
                 <i class="fas fa-chevron-right toggle-icon"></i>
             </a>
-            <div class="dropdown-submenu {{ Request::routeIs('admin.anggota.*', 'admin.divisi.*', 'admin.jabatan.*') ? 'show' : '' }}">
+            <div class="dropdown-submenu {{ Request::routeIs('admin.anggota.*', 'admin.divisi.*', 'admin.jabatan.*', 'admin.criteria.*') ? 'show' : '' }}">
                 <a href="{{ route('admin.anggota.index') }}" class="submenu-link {{ Request::routeIs('admin.anggota.*') ? 'active' : '' }}">
                     <i class="fas fa-users me-2"></i>Kelola Anggota
                 </a>
@@ -31,6 +31,9 @@
                 </a>
                 <a href="{{ route('admin.jabatan.index') }}" class="submenu-link {{ Request::routeIs('admin.jabatan.*') ? 'active' : '' }}">
                     <i class="fas fa-user-tie me-2"></i>Kelola Jabatan
+                </a>
+                <a href="{{ route('admin.criteria.index') }}" class="submenu-link {{ Request::routeIs('admin.criteria.*') ? 'active' : '' }}">
+                    <i class="fas fa-list me-2"></i>Kelola Kriteria
                 </a>
             </div>
         </li>

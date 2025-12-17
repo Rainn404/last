@@ -22,6 +22,7 @@ use App\Http\Controllers\UserDashboardController;
 use App\Http\Controllers\Admin\MahasiswaController;
 use App\Http\Controllers\Admin\AdminKomentarController;
 use App\Http\Controllers\MahasiswaBermasalahController;
+use App\Http\Controllers\Admin\CriteriaController;
 use App\Http\Controllers\Admin\BeritaController as AdminBeritaController;
 use App\Http\Controllers\Admin\DivisiController as AdminDivisiController;
 use App\Http\Controllers\Admin\AnggotaController as AdminAnggotaController;
@@ -233,6 +234,17 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     // Berita Management
     Route::resource('berita', AdminBeritaController::class);
+
+    // Criteria Management
+    Route::prefix('criteria')->name('criteria.')->group(function () {
+        Route::get('/', [CriteriaController::class, 'index'])->name('index');
+        Route::get('/create', [CriteriaController::class, 'create'])->name('create');
+        Route::post('/', [CriteriaController::class, 'store'])->name('store');
+        Route::get('/{id}', [CriteriaController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [CriteriaController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [CriteriaController::class, 'update'])->name('update');
+        Route::delete('/{id}', [CriteriaController::class, 'destroy'])->name('destroy');
+    });
 
     // Pelanggaran Management - SUPER_ADMIN ONLY
     Route::middleware(\App\Http\Middleware\RoleMiddleware::class . ':super_admin')->prefix('pelanggaran')->name('pelanggaran.')->group(function () {

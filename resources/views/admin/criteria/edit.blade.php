@@ -17,7 +17,7 @@
                 <h5 class="mb-0">Edit Kriteria</h5>
             </div>
             <div class="card-body">
-                <form action="{{ route('admin.criteria.update', $criterion) }}" method="POST">
+                <form action="{{ route('admin.criteria.update', $criterion->id_criterion) }}" method="POST">
                     @csrf
                     @method('PUT')
                     
@@ -31,7 +31,7 @@
                                name="name" 
                                value="{{ old('name', $criterion->name) }}"
                                required
-                               maxlength="100">
+                               maxlength="255">
                         @error('name')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -47,10 +47,10 @@
                                 required>
                             <option value="">Pilih Tipe</option>
                             <option value="benefit" {{ old('type', $criterion->type) == 'benefit' ? 'selected' : '' }}>
-                                Benefit
+                                Benefit (Semakin besar semakin baik)
                             </option>
                             <option value="cost" {{ old('type', $criterion->type) == 'cost' ? 'selected' : '' }}>
-                                Cost
+                                Cost (Semakin kecil semakin baik)
                             </option>
                         </select>
                         @error('type')

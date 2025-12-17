@@ -11,10 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('criteria', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('criteria')) {
+            Schema::create('criteria', function (Blueprint $table) {
+                $table->id('id_criterion');
+                $table->string('code', 20)->unique();
+                $table->string('name');
+                $table->text('description')->nullable();
+                $table->enum('type', ['benefit', 'cost'])->default('benefit');
+                $table->decimal('weight', 5, 2)->default(0);
+                $table->integer('priority')->default(1);
+                $table->boolean('status')->default(true);
+                $table->timestamps();
+            });
+        }
     }
 
     /**

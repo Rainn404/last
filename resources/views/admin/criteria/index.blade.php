@@ -244,7 +244,7 @@
                                 </td>
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm" role="group">
-                                        <a href="{{ route('admin.criteria.edit', $criterion) }}"
+                                        <a href="{{ route('admin.criteria.edit', $criterion->id_criterion) }}"
                                            class="btn btn-outline-warning"
                                            title="Edit" data-bs-toggle="tooltip">
                                             <i class="fas fa-edit"></i>
@@ -252,7 +252,7 @@
                                         <button type="button" 
                                                 class="btn btn-outline-danger"
                                                 data-bs-toggle="modal"
-                                                data-bs-target="#deleteModal{{ $criterion->id }}"
+                                                data-bs-target="#deleteModal{{ $criterion->id_criterion }}"
                                                 title="Hapus" data-bs-toggle="tooltip">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -298,7 +298,7 @@
 
 {{-- Delete Modals --}}
 @foreach($criteria as $criterion)
-<div class="modal fade" id="deleteModal{{ $criterion->id }}" tabindex="-1">
+<div class="modal fade" id="deleteModal{{ $criterion->id_criterion }}" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-danger text-white">
@@ -313,7 +313,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <form action="{{ route('admin.criteria.destroy', $criterion) }}" method="POST">
+                <form action="{{ route('admin.criteria.destroy', $criterion->id_criterion) }}" method="POST">
                     @csrf @method('DELETE')
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-danger">Hapus</button>

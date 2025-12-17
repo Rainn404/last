@@ -437,7 +437,8 @@
                     $isMasterDataActive = Request::routeIs('admin.anggota.*') || 
                                          Request::routeIs('admin.jabatan.*') || 
                                          Request::routeIs('admin.divisi.*') || 
-                                         Request::routeIs('admin.mahasiswa.*');
+                                         Request::routeIs('admin.mahasiswa.*') ||
+                                         Request::routeIs('admin.criteria.*');
                 @endphp
                 <li class="nav-item dropdown {{ $isMasterDataActive ? 'active show' : '' }}">
                     <a href="#" class="nav-link dropdown-toggle {{ $isMasterDataActive ? 'active' : '' }}" 
@@ -468,6 +469,12 @@
                             <a href="{{ route('admin.mahasiswa.index') }}" class="dropdown-item {{ Request::routeIs('admin.mahasiswa.*') ? 'active' : '' }}">
                                 <i class="fas fa-user-graduate me-2"></i>
                                 <span>Data Mahasiswa</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.criteria.index') }}" class="dropdown-item {{ Request::routeIs('admin.criteria.*') ? 'active' : '' }}">
+                                <i class="fas fa-list me-2"></i>
+                                <span>Kelola Kriteria</span>
                             </a>
                         </li>
                     </ul>

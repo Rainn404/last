@@ -19,7 +19,7 @@ return new class extends Migration
     {
         Schema::table('jabatans', function (Blueprint $table) {
             if (Schema::hasColumn('jabatans', 'id_divisi')) {
-                $table->dropForeignKey(['id_divisi']);
+                $table->dropForeignKeyIfExists('jabatans_id_divisi_foreign');
                 $table->dropColumn('id_divisi');
             }
         });

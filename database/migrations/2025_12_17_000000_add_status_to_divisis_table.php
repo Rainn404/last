@@ -9,7 +9,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('divisis', function (Blueprint $table) {
-            $table->boolean('status')->default(true)->after('deskripsi');
+            if (!Schema::hasColumn('divisis', 'status')) {
+                $table->boolean('status')->default(true)->after('deskripsi');
+            }
         });
     }
 

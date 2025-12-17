@@ -395,18 +395,21 @@ section {
 }
 
 .divisi-card {
-    background-color: var(--white);
-    padding: 30px;
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(224, 231, 255, 0.3);
     border-radius: var(--border-radius-lg);
-    box-shadow: var(--shadow);
+    box-shadow: 0 4px 6px rgba(2, 6, 23, 0.2);
     text-align: center;
-    transition: var(--transition);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
     border-top: 4px solid transparent;
 }
 
 .divisi-card:hover {
-    transform: translateY(-10px);
-    box-shadow: var(--shadow-lg);
+    transform: translateY(-8px);
+    border-color: #6366F1;
+    box-shadow: 0 12px 30px rgba(99, 102, 241, 0.2);
+    background: rgba(255, 255, 255, 0.25);
     border-top-color: var(--primary-color);
 }
 
