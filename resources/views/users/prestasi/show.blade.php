@@ -3,10 +3,133 @@
 @section('title', 'Detail Prestasi - HIMA Sistem Manajemen')
 
 @section('content')
+<link rel="stylesheet" href="{{ asset('css/glassmorphism.css') }}">
+
+<style>
+    body {
+        background-image: url('/logo_bg/gedung politala');
+        background-attachment: fixed;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(rgba(15, 23, 42, 0.55), rgba(49, 46, 129, 0.25));
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .container-fluid {
+        position: relative;
+        z-index: 2;
+    }
+
+    .card-glass {
+        background: rgba(255, 255, 255, 0.18);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(224, 231, 255, 0.30);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(2, 6, 23, 0.15);
+        color: #F8FAFC;
+    }
+
+    .card-glass .card-header {
+        background: rgba(99, 102, 241, 0.2) !important;
+        border-bottom: 1px solid rgba(99, 102, 241, 0.3) !important;
+        color: #F8FAFC !important;
+    }
+
+    .card-glass .card-body {
+        color: #CBD5E1;
+    }
+
+    .card-glass h4, .card-glass h5 {
+        color: #F8FAFC;
+        border-bottom-color: rgba(99, 102, 241, 0.3) !important;
+        padding-bottom: 12px !important;
+    }
+
+    .card-glass table {
+        color: #CBD5E1;
+    }
+
+    .card-glass table th {
+        color: #E0E7FF;
+        font-weight: 600;
+    }
+
+    .badge {
+        background: rgba(99, 102, 241, 0.2) !important;
+        color: #E0E7FF !important;
+    }
+
+    .btn-light {
+        background: rgba(255, 255, 255, 0.15) !important;
+        color: #F8FAFC !important;
+        border: 1px solid rgba(224, 231, 255, 0.30);
+    }
+
+    .btn-light:hover {
+        background: rgba(255, 255, 255, 0.25) !important;
+        border-color: #6366F1;
+    }
+
+    .btn-primary {
+        background: #6366F1 !important;
+        border-color: #6366F1 !important;
+    }
+
+    .btn-primary:hover {
+        background: #4F46E5 !important;
+        border-color: #4F46E5 !important;
+    }
+
+    .btn-danger {
+        background: rgba(239, 68, 68, 0.2) !important;
+        color: #FCA5A5 !important;
+        border: 1px solid rgba(239, 68, 68, 0.3) !important;
+    }
+
+    .btn-danger:hover {
+        background: rgba(239, 68, 68, 0.3) !important;
+    }
+
+    .alert {
+        background: rgba(99, 102, 241, 0.15) !important;
+        border: 1px solid rgba(99, 102, 241, 0.3) !important;
+        color: #E0E7FF !important;
+    }
+
+    .alert-info {
+        background: rgba(59, 130, 246, 0.15) !important;
+        border-color: rgba(59, 130, 246, 0.3) !important;
+        color: #BFDBFE !important;
+    }
+
+    .text-muted {
+        color: #94A3B8 !important;
+    }
+
+    .border-bottom {
+        border-bottom-color: rgba(99, 102, 241, 0.3) !important;
+    }
+
+    h6 {
+        color: #E0E7FF;
+    }
+</style>
+
 <div class="container-fluid py-4">
     <div class="row justify-content-center">
         <div class="col-12 col-lg-10">
-            <div class="card shadow-sm">
+            <div class="card-glass shadow-sm">
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">
                         <i class="fas fa-trophy me-2"></i>Detail Prestasi

@@ -3,6 +3,217 @@
 @section('title', 'Pendaftaran Ditutup - HIMA-TI')
 
 @section('content')
+<link rel="stylesheet" href="{{ asset('css/glassmorphism.css') }}">
+
+<style>
+    /* Background & Overlay managed by app.blade.php */
+    body::before {
+        z-index: 0 !important;
+    }
+
+    main, section {
+        position: relative;
+        z-index: 2;
+    }
+
+    .page-header {
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(15px);
+        border-bottom: 1px solid rgba(224, 231, 255, 0.25);
+        padding: 80px 20px;
+        margin-top: 70px;
+        text-align: center;
+        color: #F8FAFC;
+    }
+
+    .page-header h1 {
+        color: #F8FAFC;
+        font-weight: 800;
+        font-size: 2.5rem;
+        text-shadow: 0 2px 4px rgba(2, 6, 23, 0.2);
+    }
+
+    .page-header p {
+        color: #E0E7FF;
+        font-size: 1.1rem;
+    }
+
+    .closed-section {
+        padding: 60px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 400px;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 2;
+    }
+
+    .closed-card {
+        background: rgba(255, 255, 255, 0.18);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(224, 231, 255, 0.30);
+        border-radius: 16px;
+        padding: 60px 40px;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(2, 6, 23, 0.15);
+    }
+
+    .closed-icon {
+        font-size: 4rem;
+        color: #FB923C;
+        margin-bottom: 24px;
+    }
+
+    .closed-card h2 {
+        color: #F8FAFC;
+        font-weight: 700;
+        font-size: 2rem;
+        margin-bottom: 16px;
+    }
+
+    .closed-message {
+        color: #CBD5E1;
+        font-size: 1.1rem;
+        margin-bottom: 32px;
+        line-height: 1.7;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .info-card {
+        background: rgba(99, 102, 241, 0.2);
+        border: 1px solid rgba(99, 102, 241, 0.4);
+        border-radius: 12px;
+        padding: 24px;
+        margin: 24px 0;
+        color: #F8FAFC;
+        backdrop-filter: blur(4px);
+    }
+
+    .info-card h4 {
+        color: #FFFFFF;
+        font-weight: 700;
+        margin-bottom: 16px;
+        font-size: 1.1rem;
+    }
+
+    .info-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        text-align: left;
+        color: #E0E7FF;
+        font-weight: 500;
+    }
+
+    .info-item i {
+        color: #A5B4FC;
+        font-size: 1.25rem;
+        margin-top: 2px;
+        flex-shrink: 0;
+    }
+
+    .info-item strong {
+        color: #FFFFFF;
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 700;
+    }
+
+    .info-item span {
+        display: block;
+        font-size: 0.95rem;
+    }
+
+    .countdown-card {
+        background: rgba(34, 197, 94, 0.2);
+        border: 1px solid rgba(34, 197, 94, 0.4);
+        border-radius: 12px;
+        padding: 24px;
+        margin: 24px 0;
+        text-align: center;
+        color: #86EFAC;
+        backdrop-filter: blur(4px);
+    }
+
+    .countdown-card h5 {
+        color: #FFFFFF;
+        margin-bottom: 16px;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .countdown-timer {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin: 16px 0;
+    }
+
+    .time-box {
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(34, 197, 94, 0.4);
+        border-radius: 8px;
+        padding: 12px;
+        backdrop-filter: blur(4px);
+    }
+
+    .time-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #86EFAC;
+    }
+
+    .time-label {
+        font-size: 0.75rem;
+        color: #E0E7FF;
+        margin-top: 4px;
+        font-weight: 500;
+    }
+
+    .btn-primary {
+        background: #6366F1 !important;
+        border-color: #6366F1 !important;
+        padding: 12px 32px;
+        font-weight: 600;
+    }
+
+    .btn-primary:hover {
+        background: #4F46E5 !important;
+        border-color: #4F46E5 !important;
+    }
+
+    @media (max-width: 768px) {
+        .page-header h1 {
+            font-size: 1.8rem;
+        }
+
+        .closed-card {
+            padding: 40px 20px;
+        }
+
+        .countdown-timer {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .time-value {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
 <!-- Page Header -->
 <section class="page-header">
     <div class="container">
@@ -102,201 +313,58 @@
 </section>
 
 <style>
-.closed-section {
-    padding: 80px 0;
-    background-color: var(--gray-light);
-    min-height: 70vh;
-}
-
-.closed-card {
-    background: var(--white);
-    padding: 50px;
-    border-radius: 16px;
-    box-shadow: var(--shadow);
-    text-align: center;
-    max-width: 700px;
-    margin: 0 auto;
-}
-
-.closed-icon {
-    font-size: 5rem;
-    color: #dc3545;
-    margin-bottom: 25px;
-}
-
-.closed-card h2 {
-    color: var(--primary-color);
-    margin-bottom: 20px;
-    font-size: 2rem;
-}
-
-.closed-message {
-    color: var(--text-light);
-    font-size: 1.1rem;
-    line-height: 1.6;
-    margin-bottom: 30px;
-}
-
-.info-card {
-    background: var(--gray-light);
-    padding: 25px;
-    border-radius: 12px;
-    margin: 30px 0;
-    text-align: left;
-}
-
-.info-card h4 {
-    color: var(--primary-color);
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-.info-details {
-    display: grid;
-    gap: 15px;
-}
-
-.info-item {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 10px;
-    background: var(--white);
-    border-radius: 8px;
-}
-
-.info-item i {
-    width: 40px;
-    height: 40px;
-    background: var(--primary-color);
-    color: var(--white);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.countdown-card {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-    color: var(--white);
-    padding: 30px;
-    border-radius: 12px;
-    margin: 25px 0;
-}
-
-.countdown-timer {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.countdown-item {
-    text-align: center;
-}
-
-.countdown-item span {
-    display: block;
-    font-size: 2.5rem;
-    font-weight: bold;
-    background: rgba(255, 255, 255, 0.2);
-    padding: 15px;
-    border-radius: 8px;
-    min-width: 80px;
-}
-
-.countdown-item small {
-    display: block;
-    margin-top: 5px;
-    opacity: 0.9;
-}
-
-.contact-info {
-    background: var(--gray-light);
-    padding: 25px;
-    border-radius: 12px;
-    margin: 25px 0;
-}
-
-.contact-info h4 {
-    color: var(--primary-color);
-    margin-bottom: 15px;
-}
-
-.contact-methods p {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 8px;
-    color: var(--text-dark);
-}
-
-.action-buttons {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    margin-top: 30px;
-}
-
-.btn {
-    padding: 12px 24px;
-    border-radius: 6px;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: var(--transition);
-    font-weight: 600;
-}
-
-.btn-primary {
-    background: var(--primary-color);
-    color: var(--white);
-}
-
-.btn-primary:hover {
-    background: var(--primary-dark);
-    transform: translateY(-2px);
-}
-
-.btn-outline {
-    background: transparent;
-    color: var(--primary-color);
-    border: 2px solid var(--primary-color);
-}
-
-.btn-outline:hover {
-    background: var(--primary-color);
-    color: var(--white);
-    transform: translateY(-2px);
-}
-
-@media (max-width: 768px) {
-    .closed-card {
-        padding: 30px 20px;
+    /* Override old styles with glassmorphism */
+    .contact-info {
+        background: rgba(99, 102, 241, 0.2) !important;
+        border: 1px solid rgba(99, 102, 241, 0.4) !important;
+        backdrop-filter: blur(4px);
+        padding: 24px;
+        border-radius: 12px;
+        margin: 24px 0;
     }
-    
-    .countdown-timer {
-        gap: 10px;
+
+    .contact-info h4 {
+        color: #FFFFFF;
+        margin-bottom: 16px;
+        font-weight: 700;
     }
-    
-    .countdown-item span {
-        font-size: 2rem;
-        min-width: 60px;
-        padding: 10px;
+
+    .contact-info p {
+        color: #E0E7FF;
     }
-    
+
+    .contact-methods p {
+        color: #CBD5E1 !important;
+    }
+
+    .contact-methods i {
+        color: #A5B4FC;
+    }
+
     .action-buttons {
-        flex-direction: column;
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin-top: 32px;
+        flex-wrap: wrap;
     }
-    
-    .info-item {
-        flex-direction: column;
-        text-align: center;
-        gap: 10px;
+
+    .btn-outline {
+        background: rgba(99, 102, 241, 0.2) !important;
+        border: 1px solid rgba(99, 102, 241, 0.4) !important;
+        color: #A5B4FC !important;
+        padding: 12px 24px !important;
+        font-weight: 600 !important;
+        border-radius: 8px !important;
+        backdrop-filter: blur(4px);
+        transition: all 0.3s ease;
     }
-}
+
+    .btn-outline:hover {
+        background: rgba(99, 102, 241, 0.4) !important;
+        border-color: #6366F1 !important;
+        color: #FFFFFF !important;
+    }
 </style>
 
 <script>

@@ -110,7 +110,7 @@
                                         @php
                                             $krit1 = $kriteriaArray[$i];
                                             $krit2 = $kriteriaArray[$j];
-                                            $key = $krit1->id . '_' . $krit2->id;
+                                            $key = $krit1->id_criterion . '_' . $krit2->id_criterion;
                                             $existingValue = $perbandingan[$key]->value ?? ($perbandingan[$key]->nilai ?? null);
                                         @endphp
                                         <tr>
@@ -127,8 +127,8 @@
                                             <td>
                                                 <span class="badge bg-secondary fs-6">{{ $krit2->code }}</span>
                                                 <strong class="ms-2">{{ $krit2->name }}</strong>
-                                                <input type="hidden" name="pairs[{{ $no - 1 }}][krit1]" value="{{ $krit1->id }}">
-                                                <input type="hidden" name="pairs[{{ $no - 1 }}][krit2]" value="{{ $krit2->id }}">
+                                                <input type="hidden" name="pairs[{{ $no - 1 }}][krit1]" value="{{ $krit1->id_criterion }}">
+                                                <input type="hidden" name="pairs[{{ $no - 1 }}][krit2]" value="{{ $krit2->id_criterion }}">
                                             </td>
 
                                             <!-- PERBANDINGAN -->

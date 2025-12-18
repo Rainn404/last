@@ -3,6 +3,158 @@
 @section('title', 'Edit Pendaftaran - HIMA-TI')
 
 @section('content')
+<link rel="stylesheet" href="{{ asset('css/glassmorphism.css') }}">
+
+<style>
+    body {
+        background-image: url('/logo_bg/gedung politala');
+        background-attachment: fixed;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(rgba(15, 23, 42, 0.55), rgba(49, 46, 129, 0.25));
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    main, section {
+        position: relative;
+        z-index: 2;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 80px 20px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .max-w-4xl {
+        max-width: 56rem;
+    }
+
+    .bg-white {
+        background: rgba(255, 255, 255, 0.18);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(224, 231, 255, 0.30);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(2, 6, 23, 0.15);
+    }
+
+    h1 {
+        color: #F8FAFC;
+        font-weight: 700;
+    }
+
+    .block {
+        display: block;
+    }
+
+    label {
+        color: #F8FAFC;
+        font-weight: 600;
+    }
+
+    input[type="text"],
+    input[type="tel"],
+    input[type="file"],
+    select,
+    textarea {
+        background: rgba(255, 255, 255, 0.15);
+        border: 2px solid rgba(224, 231, 255, 0.30);
+        color: #F8FAFC;
+        border-radius: 8px;
+        padding: 10px;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(4px);
+    }
+
+    input[type="text"]::placeholder,
+    input[type="tel"]::placeholder,
+    select::placeholder,
+    textarea::placeholder {
+        color: #94A3B8;
+    }
+
+    input[type="text"]:focus,
+    input[type="tel"]:focus,
+    input[type="file"]:focus,
+    select:focus,
+    textarea:focus {
+        outline: none;
+        border-color: #6366F1;
+        background: rgba(255, 255, 255, 0.25);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+
+    select option {
+        background-color: #1E293B;
+        color: #F8FAFC;
+    }
+
+    .text-red-500 {
+        color: #FCA5A5;
+    }
+
+    .text-gray-600, .text-xs, .text-sm {
+        color: #CBD5E1;
+    }
+
+    a {
+        color: #A5B4FC;
+        transition: all 0.3s ease;
+    }
+
+    a:hover {
+        color: #E0E7FF;
+    }
+
+    .bg-gray-300, .bg-blue-600 {
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(224, 231, 255, 0.30);
+    }
+
+    button[type="submit"],
+    a.bg-blue-600 {
+        background: #6366F1 !important;
+        color: #FFFFFF !important;
+    }
+
+    button[type="submit"]:hover,
+    a.bg-blue-600:hover {
+        background: #4F46E5 !important;
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+    }
+
+    a.bg-gray-300 {
+        background: rgba(255, 255, 255, 0.15);
+        color: #F8FAFC !important;
+        border: 1px solid rgba(224, 231, 255, 0.30);
+    }
+
+    a.bg-gray-300:hover {
+        background: rgba(255, 255, 255, 0.25);
+    }
+
+    .text-blue-600 {
+        color: #A5B4FC;
+    }
+
+    .text-blue-600:hover {
+        color: #E0E7FF;
+    }
+</style>
+
 <div class="container mx-auto px-4 py-8">
     <div class="max-w-4xl mx-auto">
         <div class="bg-white rounded-lg shadow-md p-6">

@@ -18,8 +18,6 @@ class Criterion extends Model
         'name',
         'code',
         'description',
-        'is_active',
-        'order',
         'priority',
         'weight',
         'status',
@@ -27,11 +25,9 @@ class Criterion extends Model
     ];
 
     protected $casts = [
-        'is_active' => 'boolean',
-        'order'     => 'integer',
+        'priority'  => 'integer',
         'status'    => 'boolean',
-        'weight'    => 'float',
-        'priority'  => 'integer'
+        'weight'    => 'float'
     ];
 
     /*
@@ -43,13 +39,13 @@ class Criterion extends Model
     // Scope: hanya kriteria aktif
     public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $query->where('status', true);
     }
 
     // Scope: mengurutkan kriteria
     public function scopeOrdered($query)
     {
-        return $query->orderBy('order')->orderBy('name');
+        return $query->orderBy('priority')->orderBy('name');
     }
 
     /*
@@ -104,7 +100,7 @@ class Criterion extends Model
             ->ordered()
             ->get()
             ->mapWithKeys(fn($criterion) => [
-                $criterion->id => "{$criterion->code} - {$criterion->name}"
+                $criterion->id_criterion => "{$criterion->code} - {$criterion->name}"
             ]);
     }
 }

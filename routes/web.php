@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\MahasiswaController;
 use App\Http\Controllers\Admin\AdminKomentarController;
 use App\Http\Controllers\MahasiswaBermasalahController;
 use App\Http\Controllers\Admin\CriteriaController;
+use App\Http\Controllers\Admin\AhpController;
 use App\Http\Controllers\Admin\BeritaController as AdminBeritaController;
 use App\Http\Controllers\Admin\DivisiController as AdminDivisiController;
 use App\Http\Controllers\Admin\AnggotaController as AdminAnggotaController;
@@ -244,6 +245,17 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::get('/{id}/edit', [CriteriaController::class, 'edit'])->name('edit');
         Route::put('/{id}', [CriteriaController::class, 'update'])->name('update');
         Route::delete('/{id}', [CriteriaController::class, 'destroy'])->name('destroy');
+    });
+
+    // AHP Management (Analytical Hierarchy Process)
+    Route::prefix('ahp')->name('ahp.')->group(function () {
+        Route::get('/', [AhpController::class, 'index'])->name('index');
+        Route::get('/perbandingan', [AhpController::class, 'perbandingan'])->name('perbandingan');
+        Route::post('/store-perbandingan', [AhpController::class, 'storePerbandingan'])->name('storePerbandingan');
+        Route::get('/hitung', [AhpController::class, 'hitung'])->name('hitung');
+        Route::post('/proses-hitung', [AhpController::class, 'prosesHitung'])->name('prosesHitung');
+        Route::get('/hasil', [AhpController::class, 'hasil'])->name('hasil');
+        Route::get('/ranking', [AhpController::class, 'ranking'])->name('ranking');
     });
 
     // Pelanggaran Management - SUPER_ADMIN ONLY

@@ -17,7 +17,7 @@ class AhpController extends Controller
     public function perbandingan()
     {
         // Ambil kriteria aktif
-        $kriteria = Criterion::where('is_active', 1)->orderBy('order')->orderBy('id')->get();
+        $kriteria = Criterion::where('status', 1)->orderBy('priority')->orderBy('id_criterion')->get();
         
         // Ambil data perbandingan yang sudah ada (jika ada tabel)
         $perbandingan = collect();
@@ -47,8 +47,8 @@ class AhpController extends Controller
     {
         $request->validate([
             'pairs' => 'required|array',
-            'pairs.*.krit1' => 'required|exists:criteria,id',
-            'pairs.*.krit2' => 'required|exists:criteria,id',
+            'pairs.*.krit1' => 'required|exists:criteria,id_criterion',
+            'pairs.*.krit2' => 'required|exists:criteria,id_criterion',
             'pairs.*.nilai' => 'required|numeric|min:0.1|max:9',
         ]);
         
@@ -62,8 +62,8 @@ class AhpController extends Controller
                     $table->decimal('value', 10, 6);
                     $table->timestamps();
                     
-                    $table->foreign('criterion1_id')->references('id')->on('criteria')->onDelete('cascade');
-                    $table->foreign('criterion2_id')->references('id')->on('criteria')->onDelete('cascade');
+                    $table->foreign('criterion1_id')->references('id_criterion')->on('criteria')->onDelete('cascade');
+                    $table->foreign('criterion2_id')->references('id_criterion')->on('criteria')->onDelete('cascade');
                     $table->unique(['criterion1_id', 'criterion2_id']);
                 });
             }
@@ -110,7 +110,7 @@ class AhpController extends Controller
      */
     public function index()
     {
-        $kriteria = Criterion::where('is_active', 1)->get();
+        $kriteria = Criterion::where('status', 1)->get();
         $hasComparisons = Schema::hasTable('pairwise_comparisons') 
             ? DB::table('pairwise_comparisons')->count() > 0 
             : false;
@@ -123,7 +123,7 @@ class AhpController extends Controller
      */
     public function hitung()
     {
-        $kriteria = Criterion::where('is_active', 1)->orderBy('order')->orderBy('id')->get();
+        $kriteria = Criterion::where('status', 1)->orderBy('priority')->orderBy('id_criterion')->get();
         
         // Cek apakah ada data perbandingan
         $hasComparisons = Schema::hasTable('pairwise_comparisons') 
@@ -146,7 +146,7 @@ class AhpController extends Controller
      */
     public function prosesHitung(Request $request)
     {
-        $kriteria = Criterion::where('is_active', 1)->orderBy('order')->orderBy('id')->get();
+        $kriteria = Criterion::where('status', 1)->orderBy('priority')->orderBy('id_criterion')->get();
         
         // Hitung dan simpan bobot ke database
         $result = $this->calculateAHP($kriteria);
@@ -171,7 +171,7 @@ class AhpController extends Controller
     private function calculateAHP($kriteria)
     {
         $n = $kriteria->count();
-        $ids = $kriteria->pluck('id')->toArray();
+        $ids = $kriteria->pluck('id_criterion')->toArray();
         
         // Buat matriks perbandingan
         $matrix = [];
@@ -270,7 +270,7 @@ class AhpController extends Controller
      */
     public function hasil()
     {
-        $kriteria = Criterion::where('is_active', 1)->orderBy('order')->orderBy('id')->get();
+        $kriteria = Criterion::where('status', 1)->orderBy('priority')->orderBy('id_criterion')->get();
         
         // Cek apakah ada bobot yang tersimpan
         $hasWeights = $kriteria->whereNotNull('weight')->count() > 0;
@@ -291,7 +291,7 @@ class AhpController extends Controller
      */
     public function ranking()
     {
-        $kriteria = Criterion::where('is_active', 1)->orderBy('order')->orderBy('id')->get();
+        $kriteria = Criterion::where('status', 1)->orderBy('priority')->orderBy('id_criterion')->get();
         
         // Cek apakah ada bobot yang tersimpan
         $hasWeights = $kriteria->whereNotNull('weight')->count() > 0;
@@ -430,7 +430,7 @@ class AhpController extends Controller
      */
     public function subkriteria()
     {
-        $kriteria = Criterion::where('is_active', 1)->get();
+        $kriteria = Criterion::where('status', 1)->get();
         return view('admin.ahp.subkriteria', compact('kriteria'));
     }
 }

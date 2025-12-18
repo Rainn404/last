@@ -437,8 +437,7 @@
                     $isMasterDataActive = Request::routeIs('admin.anggota.*') || 
                                          Request::routeIs('admin.jabatan.*') || 
                                          Request::routeIs('admin.divisi.*') || 
-                                         Request::routeIs('admin.mahasiswa.*') ||
-                                         Request::routeIs('admin.criteria.*');
+                                         Request::routeIs('admin.mahasiswa.*');
                 @endphp
                 <li class="nav-item dropdown {{ $isMasterDataActive ? 'active show' : '' }}">
                     <a href="#" class="nav-link dropdown-toggle {{ $isMasterDataActive ? 'active' : '' }}" 
@@ -471,10 +470,54 @@
                                 <span>Data Mahasiswa</span>
                             </a>
                         </li>
+                    </ul>
+                </li>
+
+                {{-- AHP & CRITERIA DROPDOWN --}}
+                @php
+                    $isAhpActive = Request::routeIs('admin.ahp.*') || Request::routeIs('admin.criteria.*');
+                @endphp
+                <li class="nav-item dropdown {{ $isAhpActive ? 'active show' : '' }}">
+                    <a href="#" class="nav-link dropdown-toggle {{ $isAhpActive ? 'active' : '' }}" 
+                       onclick="toggleDropdown(this)">
+                        <i class="fas fa-balance-scale me-3"></i>
+                        <span>SPK</span>
+                    </a>
+                    <ul class="dropdown-menu {{ $isAhpActive ? 'show' : '' }}">
                         <li>
                             <a href="{{ route('admin.criteria.index') }}" class="dropdown-item {{ Request::routeIs('admin.criteria.*') ? 'active' : '' }}">
                                 <i class="fas fa-list me-2"></i>
                                 <span>Kelola Kriteria</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.ahp.index') }}" class="dropdown-item {{ Request::routeIs('admin.ahp.index') ? 'active' : '' }}">
+                                <i class="fas fa-home me-2"></i>
+                                <span>Dashboard AHP</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.ahp.perbandingan') }}" class="dropdown-item {{ Request::routeIs('admin.ahp.perbandingan') ? 'active' : '' }}">
+                                <i class="fas fa-exchange-alt me-2"></i>
+                                <span>Perbandingan Berpasangan</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.ahp.hitung') }}" class="dropdown-item {{ Request::routeIs('admin.ahp.hitung') ? 'active' : '' }}">
+                                <i class="fas fa-calculator me-2"></i>
+                                <span>Hitung AHP</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.ahp.hasil') }}" class="dropdown-item {{ Request::routeIs('admin.ahp.hasil') ? 'active' : '' }}">
+                                <i class="fas fa-chart-bar me-2"></i>
+                                <span>Lihat Hasil</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.ahp.ranking') }}" class="dropdown-item {{ Request::routeIs('admin.ahp.ranking') ? 'active' : '' }}">
+                                <i class="fas fa-trophy me-2"></i>
+                                <span>Ranking SAW</span>
                             </a>
                         </li>
                     </ul>
@@ -826,7 +869,7 @@
             }, 5000);
         }
     </script>
-    
+    z
     @stack('scripts')
 </body>
 </html>

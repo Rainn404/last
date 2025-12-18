@@ -13,6 +13,14 @@
 
     <style>
         /* === Fixed Background & Overlay === */
+        html {
+            margin: 0;
+            padding: 0;
+            background: url('{{ asset("logo_bg/Gedung 2 Politala-thumbnail.jpg") }}') fixed center/cover no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
         html, body {
             margin: 0;
             padding: 0;
@@ -20,9 +28,10 @@
         }
 
         body {
-            background: url('{{ asset("logo_bg/Gedung 2 Politala-thumbnail.jpg") }}') fixed center/cover no-repeat;
+            background: transparent;
             position: relative;
             padding-top: 80px;
+            z-index: 1;
         }
 
         body::before {
@@ -32,19 +41,8 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(15, 23, 42, 0.55);
-            z-index: -1;
-        }
-
-        body::after {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(49, 46, 129, 0.25);
-            z-index: -1;
+            background: linear-gradient(rgba(15, 23, 42, 0.55), rgba(49, 46, 129, 0.25));
+            z-index: 0;
             pointer-events: none;
         }
 

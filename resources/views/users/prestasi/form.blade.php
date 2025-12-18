@@ -3,6 +3,210 @@
 @section('title', 'Ajukan Prestasi - HIMA-TI')
 
 @section('content')
+<link rel="stylesheet" href="{{ asset('css/glassmorphism.css') }}">
+
+<style>
+    body {
+        background-image: url('/logo_bg/gedung politala');
+        background-attachment: fixed;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(rgba(15, 23, 42, 0.55), rgba(49, 46, 129, 0.25));
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    main, section, .container {
+        position: relative;
+        z-index: 2;
+    }
+
+    .page-title {
+        color: #F8FAFC !important;
+    }
+
+    .hero-section p {
+        color: #CBD5E1 !important;
+    }
+
+    .btn-light {
+        background: rgba(255, 255, 255, 0.15) !important;
+        border: 1px solid rgba(224, 231, 255, 0.30) !important;
+        color: #F8FAFC !important;
+    }
+
+    .btn-light:hover {
+        background: rgba(255, 255, 255, 0.25) !important;
+    }
+
+    .card {
+        background: rgba(255, 255, 255, 0.18) !important;
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(224, 231, 255, 0.30) !important;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(2, 6, 23, 0.15) !important;
+    }
+
+    .card-header {
+        background: rgba(99, 102, 241, 0.3) !important;
+        border-bottom: 1px solid rgba(224, 231, 255, 0.30) !important;
+        color: #F8FAFC !important;
+    }
+
+    .card-body {
+        color: #F8FAFC;
+    }
+
+    .card-header h4 {
+        color: #F8FAFC;
+    }
+
+    .step-badge {
+        background: rgba(99, 102, 241, 0.3);
+        color: #A5B4FC;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+    }
+
+    .section-title {
+        color: #F8FAFC !important;
+    }
+
+    .form-label {
+        color: #F8FAFC;
+    }
+
+    .form-control, .input-group-text, input, select, textarea {
+        background: rgba(255, 255, 255, 0.15) !important;
+        border: 2px solid rgba(224, 231, 255, 0.30) !important;
+        color: #F8FAFC !important;
+        backdrop-filter: blur(4px);
+    }
+
+    .form-control::placeholder,
+    input::placeholder,
+    select::placeholder,
+    textarea::placeholder {
+        color: #94A3B8 !important;
+    }
+
+    .form-control:focus, input:focus, select:focus, textarea:focus {
+        outline: none;
+        border-color: #6366F1 !important;
+        background: rgba(255, 255, 255, 0.25) !important;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2) !important;
+    }
+
+    .input-group-text {
+        background: rgba(99, 102, 241, 0.2) !important;
+        border-color: rgba(224, 231, 255, 0.30) !important;
+        color: #A5B4FC !important;
+    }
+
+    select option {
+        background-color: #1E293B;
+        color: #F8FAFC;
+    }
+
+    .alert-danger {
+        background: rgba(220, 38, 38, 0.15) !important;
+        border: 1px solid rgba(220, 38, 38, 0.3) !important;
+        color: #FCA5A5 !important;
+    }
+
+    .alert-info {
+        background: rgba(59, 130, 246, 0.15) !important;
+        border: 1px solid rgba(59, 130, 246, 0.3) !important;
+        color: #CBD5E1 !important;
+    }
+
+    .alert-info strong {
+        color: #A5B4FC;
+    }
+
+    .btn-primary {
+        background: #6366F1 !important;
+        border-color: #6366F1 !important;
+    }
+
+    .btn-primary:hover {
+        background: #4F46E5 !important;
+        border-color: #4F46E5 !important;
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35) !important;
+    }
+
+    .btn-outline-danger {
+        border-color: #FCA5A5 !important;
+        color: #FCA5A5 !important;
+    }
+
+    .btn-outline-danger:hover {
+        background: #FCA5A5 !important;
+        border-color: #FCA5A5 !important;
+    }
+
+    .bg-light {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-bottom: 1px solid rgba(224, 231, 255, 0.30);
+    }
+
+    h5, h6 {
+        color: #F8FAFC;
+    }
+
+    .step-progress {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(224, 231, 255, 0.30);
+        color: #CBD5E1;
+        flex: 1;
+        min-width: 150px;
+        transition: all 0.3s ease;
+    }
+
+    .step.active {
+        background: rgba(99, 102, 241, 0.2);
+        border-color: #6366F1;
+        color: #A5B4FC;
+    }
+
+    .step-icon {
+        font-size: 1.5rem;
+        color: #A5B4FC;
+    }
+
+    .step.active .step-icon {
+        color: #E0E7FF;
+    }
+</style>
+
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-12 col-lg-10">

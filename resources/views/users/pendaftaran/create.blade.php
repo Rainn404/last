@@ -3,6 +3,20 @@
 @section('title', 'Form Pendaftaran - HIMA-TI')
 
 @section('content')
+<link rel="stylesheet" href="{{ asset('css/glassmorphism.css') }}">
+
+<style>
+    /* Background & Overlay managed by app.blade.php */
+    body::before {
+        z-index: 0 !important;
+    }
+
+    main, section {
+        position: relative;
+        z-index: 2;
+    }
+</style>
+
 <!-- Page Header -->
 <section class="pendaftaran-header">
     <div class="pendaftaran-container">
@@ -299,24 +313,6 @@
 <style>
 /* Variables */
 :root {
-    --primary-color: #3B82F6;
-    --primary-dark: #1D4ED8;
-    --primary-light: #EFF6FF;
-    --secondary-color: #10B981;
-    --accent-color: #F59E0B;
-    --text-dark: #1F2937;
-    --text-light: #6B7280;
-    --text-lighter: #9CA3AF;
-    --white: #FFFFFF;
-    --gray-light: #F3F4F6;
-    --gray-medium: #E5E7EB;
-    --border-color: #D1D5DB;
-    --error-color: #DC2626;
-    --success-color: #059669;
-    --warning-color: #D97706;
-    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     --border-radius: 12px;
     --border-radius-lg: 16px;
     --transition: all 0.3s ease;
@@ -331,10 +327,14 @@
 
 /* Header Styles */
 .pendaftaran-header {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    background: rgba(99, 102, 241, 0.2);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(224, 231, 255, 0.30);
     padding: 3rem 0;
     text-align: center;
-    color: var(--white);
+    color: #F8FAFC;
+    position: relative;
+    z-index: 2;
 }
 
 .header-title {
@@ -342,6 +342,7 @@
     font-weight: 700;
     margin-bottom: 1rem;
     line-height: 1.2;
+    color: #F8FAFC;
 }
 
 .header-description {
@@ -350,19 +351,23 @@
     max-width: 600px;
     margin: 0 auto;
     line-height: 1.6;
+    color: #CBD5E1;
 }
 
 /* Main Section */
 .pendaftaran-section {
     padding: 3rem 0;
-    background: linear-gradient(135deg, var(--primary-light) 0%, var(--gray-light) 100%);
     min-height: 100vh;
+    position: relative;
+    z-index: 2;
 }
 
 .pendaftaran-card {
-    background: var(--white);
-    border-radius: var(--border-radius-lg);
-    box-shadow: var(--shadow-xl);
+    background: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(224, 231, 255, 0.20);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(2, 6, 23, 0.3);
     overflow: hidden;
 }
 
@@ -378,9 +383,9 @@
 }
 
 .alert-message.error {
-    background: #FEF2F2;
-    border: 1px solid #FECACA;
-    color: #DC2626;
+    background: rgba(220, 38, 38, 0.15);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    color: #FCA5A5;
 }
 
 .alert-icon {
@@ -391,18 +396,21 @@
 .alert-title {
     font-weight: 600;
     margin-bottom: 0.25rem;
+    color: #FCA5A5;
 }
 
 .alert-description {
     margin: 0;
     font-size: 0.95rem;
+    color: #FECACA;
 }
 
 /* Registration Info */
 .pendaftaran-info {
     padding: 2rem;
-    background: var(--primary-light);
-    border-bottom: 1px solid var(--border-color);
+    background: rgba(99, 102, 241, 0.10);
+    border-bottom: 1px solid rgba(224, 231, 255, 0.20);
+    backdrop-filter: blur(4px);
 }
 
 .info-grid {
@@ -416,22 +424,24 @@
     align-items: center;
     gap: 1rem;
     padding: 1.5rem;
-    background: var(--white);
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid rgba(224, 231, 255, 0.20);
     border-radius: var(--border-radius);
-    box-shadow: var(--shadow);
+    box-shadow: 0 4px 15px rgba(2, 6, 23, 0.2);
     transition: var(--transition);
 }
 
 .info-card:hover {
     transform: translateY(-3px);
-    box-shadow: var(--shadow-lg);
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.2);
 }
 
 .info-icon {
     width: 50px;
     height: 50px;
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-    color: var(--white);
+    background: rgba(99, 102, 241, 0.3);
+    color: #A5B4FC;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -443,14 +453,14 @@
 .info-title {
     font-size: 0.9rem;
     font-weight: 600;
-    color: var(--text-light);
+    color: #94A3B8;
     margin-bottom: 0.25rem;
 }
 
 .info-description {
     font-size: 1rem;
     font-weight: 700;
-    color: var(--text-dark);
+    color: #F8FAFC;
     margin: 0;
 }
 
@@ -461,11 +471,9 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-}
-
-.status-open {
-    background: #D1FAE5;
-    color: #065F46;
+    background: rgba(34, 197, 94, 0.2);
+    color: #86EFAC;
+    border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
 /* Form Styles */
@@ -476,7 +484,7 @@
 .form-section {
     margin-bottom: 2.5rem;
     padding-bottom: 2rem;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid rgba(224, 231, 255, 0.30);
 }
 
 .form-section:last-of-type {
@@ -495,10 +503,10 @@
 .section-icon {
     width: 50px;
     height: 50px;
-    background: var(--primary-light);
-    color: var(--primary-color);
+    background: rgba(99, 102, 241, 0.2);
+    color: #A5B4FC;
     border-radius: 12px;
-    display: flex;
+    display: none !important;
     align-items: center;
     justify-content: center;
     font-size: 1.25rem;
@@ -508,12 +516,12 @@
 .section-title {
     font-size: 1.5rem;
     font-weight: 600;
-    color: var(--text-dark);
+    color: #F8FAFC;
     margin-bottom: 0.5rem;
 }
 
 .section-description {
-    color: var(--text-light);
+    color: #CBD5E1;
     margin: 0;
     font-size: 0.95rem;
 }
@@ -531,7 +539,7 @@
 .field-label {
     display: block;
     font-weight: 600;
-    color: var(--text-dark);
+    color: #F8FAFC;
     margin-bottom: 0.5rem;
     font-size: 0.95rem;
 }
@@ -541,20 +549,34 @@
 .field-textarea {
     width: 100%;
     padding: 1rem 1.25rem;
-    border: 2px solid var(--gray-medium);
+    border: 1px solid rgba(224, 231, 255, 0.20);
     border-radius: var(--border-radius);
     font-size: 1rem;
     transition: var(--transition);
-    background-color: var(--white);
+    background-color: rgba(15, 23, 42, 0.6);
     font-family: inherit;
+    color: #F8FAFC;
+    backdrop-filter: blur(6px);
+}
+
+.field-input::placeholder,
+.field-select::placeholder,
+.field-textarea::placeholder {
+    color: #64748B;
 }
 
 .field-input:focus,
 .field-select:focus,
 .field-textarea:focus {
     outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: #6366F1;
+    background-color: rgba(15, 23, 42, 0.8);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.field-select option {
+    background-color: #1E293B;
+    color: #F8FAFC;
 }
 
 .field-textarea {
@@ -565,7 +587,7 @@
 
 .field-help {
     margin-top: 0.5rem;
-    color: var(--text-light);
+    color: #94A3B8;
     font-size: 0.85rem;
     display: flex;
     justify-content: space-between;
@@ -577,17 +599,17 @@
 }
 
 .char-count.low {
-    color: var(--error-color);
+    color: #FCA5A5;
 }
 
 .char-count.good {
-    color: var(--success-color);
+    color: #86EFAC;
 }
 
 .field-error {
     display: block;
     margin-top: 0.5rem;
-    color: var(--error-color);
+    color: #FCA5A5;
     font-size: 0.85rem;
     font-weight: 500;
 }
@@ -610,18 +632,19 @@
     align-items: center;
     gap: 0.75rem;
     padding: 1rem 1.5rem;
-    background: var(--primary-light);
-    border: 2px dashed var(--primary-color);
+    background: rgba(99, 102, 241, 0.2);
+    border: 2px dashed rgba(99, 102, 241, 0.5);
     border-radius: var(--border-radius);
     cursor: pointer;
     transition: var(--transition);
-    color: var(--primary-color);
+    color: #A5B4FC;
     font-weight: 500;
 }
 
 .file-label:hover {
-    background: var(--primary-color);
-    color: var(--white);
+    background: rgba(99, 102, 241, 0.3);
+    border-color: #6366F1;
+    color: #E0E7FF;
 }
 
 .file-icon {
@@ -630,21 +653,22 @@
 
 /* Agreement Card */
 .agreement-card {
-    background: var(--primary-light);
+    background: rgba(59, 130, 246, 0.15);
     padding: 2rem;
     border-radius: var(--border-radius);
-    border: 1px solid var(--border-color);
+    border: 1px solid rgba(224, 231, 255, 0.30);
+    backdrop-filter: blur(4px);
 }
 
 .agreement-title {
     font-size: 1.25rem;
     font-weight: 600;
-    color: var(--text-dark);
+    color: #F8FAFC;
     margin-bottom: 0.75rem;
 }
 
 .agreement-description {
-    color: var(--text-light);
+    color: #CBD5E1;
     margin-bottom: 1rem;
     font-size: 0.95rem;
 }
@@ -652,7 +676,7 @@
 .agreement-list {
     margin: 1rem 0;
     padding-left: 1.5rem;
-    color: var(--text-dark);
+    color: #E0E7FF;
 }
 
 .agreement-list li {
@@ -670,7 +694,7 @@
     gap: 1rem;
     cursor: pointer;
     font-weight: 600;
-    color: var(--text-dark);
+    color: #F8FAFC;
 }
 
 .agreement-checkbox {
@@ -681,23 +705,24 @@
 .checkmark {
     width: 20px;
     height: 20px;
-    border: 2px solid var(--border-color);
+    border: 2px solid rgba(224, 231, 255, 0.30);
     border-radius: 4px;
     position: relative;
     flex-shrink: 0;
     margin-top: 0.125rem;
     transition: var(--transition);
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .agreement-checkbox:checked + .checkmark {
-    background: var(--primary-color);
-    border-color: var(--primary-color);
+    background: #6366F1;
+    border-color: #6366F1;
 }
 
 .agreement-checkbox:checked + .checkmark::after {
     content: '✓';
     position: absolute;
-    color: var(--white);
+    color: #FFFFFF;
     font-size: 14px;
     top: 50%;
     left: 50%;
@@ -716,7 +741,7 @@
     justify-content: center;
     margin-top: 2rem;
     padding-top: 2rem;
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid rgba(224, 231, 255, 0.30);
 }
 
 .submit-button {
@@ -736,24 +761,25 @@
 }
 
 .submit-button.primary {
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-    color: var(--white);
+    background: #6366F1;
+    color: #FFFFFF;
 }
 
 .submit-button.primary:hover {
+    background: #4F46E5;
     transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
 }
 
 .submit-button.outline {
-    background: transparent;
-    color: var(--primary-color);
-    border: 2px solid var(--primary-color);
+    background: rgba(255, 255, 255, 0.15);
+    color: #F8FAFC;
+    border: 2px solid rgba(224, 231, 255, 0.30);
 }
 
 .submit-button.outline:hover {
-    background: var(--primary-color);
-    color: var(--white);
+    background: rgba(255, 255, 255, 0.25);
+    border-color: #6366F1;
     transform: translateY(-2px);
 }
 

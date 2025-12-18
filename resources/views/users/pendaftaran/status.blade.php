@@ -3,6 +3,69 @@
 @section('title', 'Status Pendaftaran - HIMA-TI')
 
 @section('content')
+<link rel="stylesheet" href="{{ asset('css/glassmorphism.css') }}">
+
+<style>
+    body {
+        background-image: url('/logo_bg/gedung politala');
+        background-attachment: fixed;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(rgba(15, 23, 42, 0.55), rgba(49, 46, 129, 0.25));
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    main, section {
+        position: relative;
+        z-index: 2;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Page Header */
+    .page-header {
+        background: rgba(99, 102, 241, 0.2);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid rgba(224, 231, 255, 0.30);
+        padding: 3rem 0;
+        text-align: center;
+        color: #F8FAFC;
+    }
+
+    .page-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #F8FAFC;
+    }
+
+    .page-header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.6;
+        color: #CBD5E1;
+    }
+</style>
+
     <!-- Page Header -->
     <section class="page-header">
         <div class="container">
@@ -243,30 +306,32 @@
     /* Thank You Section */
     .thank-you-section {
         padding: 60px 0;
-        background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-color) 100%);
-        color: var(--white);
+        background: transparent;
     }
 
     .thank-you-card {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.18);
+        backdrop-filter: blur(8px);
         padding: 40px;
         border-radius: 16px;
         text-align: center;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(224, 231, 255, 0.30);
+        box-shadow: 0 8px 32px rgba(2, 6, 23, 0.15);
         max-width: 800px;
         margin: 0 auto;
+        color: #F8FAFC;
     }
 
     .success-icon {
         font-size: 4rem;
-        color: #90ee90;
+        color: #86EFAC;
         margin-bottom: 20px;
     }
 
     .thank-you-card h2 {
         margin-bottom: 15px;
         font-size: 2rem;
+        color: #F8FAFC;
     }
 
     .thank-you-message {
@@ -274,6 +339,7 @@
         line-height: 1.6;
         margin-bottom: 30px;
         opacity: 0.9;
+        color: #CBD5E1;
     }
 
     .registration-info {
@@ -282,6 +348,7 @@
         border-radius: 12px;
         text-align: left;
         margin-top: 20px;
+        border: 1px solid rgba(224, 231, 255, 0.30);
     }
 
     .info-item {
@@ -289,15 +356,25 @@
         justify-content: space-between;
         align-items: center;
         padding: 10px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid rgba(224, 231, 255, 0.30);
+        color: #CBD5E1;
     }
 
     .info-item:last-child {
         border-bottom: none;
     }
 
+    .info-item strong {
+        color: #F8FAFC;
+    }
+
     .registration-number {
-        background: var(--white);
+        background: rgba(99, 102, 241, 0.3);
+        color: #A5B4FC;
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+    }
+
         color: var(--primary-color);
         padding: 5px 10px;
         border-radius: 6px;

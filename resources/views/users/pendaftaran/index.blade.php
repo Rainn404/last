@@ -3,6 +3,354 @@
 @section('title', 'Pendaftaran Anggota - HIMA-TI')
 
 @section('content')
+<link rel="stylesheet" href="{{ asset('css/glassmorphism.css') }}">
+
+<style>
+    /* Fixed background image */
+    body {
+        background-image: url('/logo_bg/gedung politala');
+        background-attachment: fixed;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+    /* Overlay backdrop */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(rgba(15, 23, 42, 0.55), rgba(49, 46, 129, 0.25));
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    /* Content layer */
+    main, section {
+        position: relative;
+        z-index: 2;
+    }
+
+    /* ===== PAGE HEADER - GLASSMORPHISM ===== */
+    .pendaftaran-header {
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(15px);
+        border-bottom: 1px solid rgba(224, 231, 255, 0.25);
+        color: #F8FAFC;
+        text-align: center;
+        padding: 80px 20px;
+        margin-top: 70px;
+    }
+
+    .pendaftaran-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 15px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .header-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .header-title {
+        font-weight: 800;
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        text-transform: uppercase;
+        text-shadow: 0 2px 4px rgba(2, 6, 23, 0.2);
+        color: #F8FAFC;
+    }
+
+    .header-description {
+        max-width: 700px;
+        font-size: 1.1rem;
+        opacity: 0.95;
+        color: #E0E7FF;
+    }
+
+    /* ===== SECTION STYLING ===== */
+    .pendaftaran-process,
+    .pendaftaran-form-section {
+        padding: 60px 20px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .section-title {
+        text-align: center;
+        font-weight: 700;
+        font-size: 1.8rem;
+        margin: 0 0 40px;
+        color: #F8FAFC;
+        text-shadow: 0 2px 4px rgba(2, 6, 23, 0.2);
+    }
+
+    /* ===== PROCESS CARDS - GLASSMORPHISM ===== */
+    .process-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+        margin-bottom: 40px;
+    }
+
+    .process-card {
+        background: rgba(255, 255, 255, 0.18);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(224, 231, 255, 0.30);
+        border-radius: 16px;
+        padding: 32px 24px;
+        text-align: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 16px rgba(2, 6, 23, 0.08);
+    }
+
+    .process-card:hover {
+        background: rgba(255, 255, 255, 0.25);
+        border-color: #6366F1;
+        box-shadow: 0 8px 32px rgba(99, 102, 241, 0.2);
+        transform: translateY(-4px);
+    }
+
+    .process-icon {
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .step-number {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #6366F1, #4F46E5);
+        color: #FFFFFF;
+        border-radius: 50%;
+        font-weight: 800;
+        font-size: 1.5rem;
+        box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+    }
+
+    .process-title {
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin-bottom: 8px;
+        color: #F8FAFC;
+    }
+
+    .process-description {
+        color: #CBD5E1;
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    /* ===== FORM CARD - GLASSMORPHISM ===== */
+    .form-card {
+        background: rgba(255, 255, 255, 0.18);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(224, 231, 255, 0.30);
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 8px 32px rgba(2, 6, 23, 0.15);
+    }
+
+    .form-title {
+        font-weight: 700;
+        font-size: 1.5rem;
+        margin-bottom: 30px;
+        color: #F8FAFC;
+        text-shadow: 0 2px 4px rgba(2, 6, 23, 0.2);
+    }
+
+    /* ===== FORM FIELDS ===== */
+    .form-field {
+        margin-bottom: 24px;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 24px;
+        margin-bottom: 24px;
+    }
+
+    .field-label {
+        display: block;
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-bottom: 8px;
+        color: #E0E7FF;
+    }
+
+    .field-input,
+    .field-select,
+    .field-textarea {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(224, 231, 255, 0.30);
+        border-radius: 8px;
+        color: #F8FAFC;
+        padding: 12px 16px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        font-family: inherit;
+        backdrop-filter: blur(8px);
+    }
+
+    .field-input::placeholder,
+    .field-textarea::placeholder {
+        color: #94A3B8;
+    }
+
+    .field-input:focus,
+    .field-select:focus,
+    .field-textarea:focus {
+        outline: none;
+        background: rgba(255, 255, 255, 0.20);
+        border-color: #6366F1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    .field-select option {
+        background: #1F2937;
+        color: #F8FAFC;
+    }
+
+    .field-error {
+        display: block;
+        color: #FCA5A5;
+        font-size: 0.85rem;
+        margin-top: 4px;
+        font-weight: 500;
+    }
+
+    /* ===== FORM BUTTONS ===== */
+    .form-button,
+    .btn-submit,
+    .btn-reset {
+        background: #6366F1;
+        color: #FFFFFF;
+        border: none;
+        padding: 12px 32px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+    }
+
+    .form-button:hover,
+    .btn-submit:hover,
+    .btn-reset:hover {
+        background: #4F46E5;
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+        transform: translateY(-2px);
+    }
+
+    .btn-reset {
+        background: rgba(255, 255, 255, 0.15);
+        color: #F8FAFC;
+        border: 1px solid rgba(224, 231, 255, 0.30);
+        margin-left: 12px;
+    }
+
+    .btn-reset:hover {
+        background: rgba(255, 255, 255, 0.25);
+        border-color: #6366F1;
+        box-shadow: 0 4px 16px rgba(99, 102, 241, 0.2);
+    }
+
+    /* ===== SIDEBAR - GLASSMORPHISM ===== */
+    .form-sidebar {
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(224, 231, 255, 0.25);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+
+    .sidebar-card-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 16px;
+        color: #F8FAFC;
+        border-bottom: 2px solid rgba(99, 102, 241, 0.3);
+        padding-bottom: 12px;
+    }
+
+    .sidebar-card-content {
+        color: #CBD5E1;
+        font-size: 0.9rem;
+        line-height: 1.7;
+    }
+
+    .sidebar-badge {
+        display: inline-block;
+        background: rgba(99, 102, 241, 0.2);
+        color: #E0E7FF;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-right: 8px;
+        margin-bottom: 8px;
+        border: 1px solid #6366F1;
+    }
+
+    /* ===== INFO BOX ===== */
+    .info-box {
+        background: rgba(99, 102, 241, 0.15);
+        border-left: 4px solid #6366F1;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 24px;
+        color: #E0E7FF;
+    }
+
+    .info-box strong {
+        color: #F8FAFC;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+        .header-title {
+            font-size: 1.8rem;
+        }
+
+        .form-card {
+            padding: 24px 16px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+        }
+
+        .btn-reset {
+            margin-left: 0;
+            margin-top: 12px;
+            width: 100%;
+        }
+
+        .process-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
     <!-- Page Header -->
     <section class="pendaftaran-header">
         <div class="pendaftaran-container">

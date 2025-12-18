@@ -3,6 +3,230 @@
 @section('title', 'Pendaftaran Berhasil - HIMA-TI')
 
 @section('content')
+<link rel="stylesheet" href="{{ asset('css/glassmorphism.css') }}">
+
+<style>
+    /* Background & Overlay managed by app.blade.php */
+    body::before {
+        z-index: 0 !important;
+    }
+
+    main, section {
+        position: relative;
+        z-index: 2;
+    }
+
+    .success-section {
+        padding: 80px 20px;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 2;
+    }
+
+    .success-card {
+        background: rgba(255, 255, 255, 0.18);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(224, 231, 255, 0.30);
+        border-radius: 16px;
+        padding: 60px 40px;
+        box-shadow: 0 8px 32px rgba(2, 6, 23, 0.15);
+        text-align: center;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .success-icon {
+        font-size: 5rem;
+        color: #22C55E;
+        margin-bottom: 24px;
+        animation: bounce 0.6s ease-in-out;
+    }
+
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+    }
+
+    .success-card h2 {
+        color: #F8FAFC;
+        font-weight: 700;
+        font-size: 2rem;
+        margin-bottom: 16px;
+    }
+
+    .success-card > p {
+        color: #CBD5E1;
+        font-size: 1.1rem;
+        margin-bottom: 32px;
+    }
+
+    .registration-details {
+        background: rgba(34, 197, 94, 0.15);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        border-radius: 12px;
+        padding: 24px;
+        margin: 32px 0;
+        text-align: left;
+    }
+
+    .registration-details h3 {
+        color: #F8FAFC;
+        font-weight: 700;
+        margin-bottom: 16px;
+        text-align: center;
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+    }
+
+    .detail-item {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 12px;
+        text-align: center;
+    }
+
+    .detail-label {
+        display: block;
+        color: #94A3B8;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .detail-value {
+        display: block;
+        color: #86EFAC;
+        font-weight: 700;
+        font-size: 0.95rem;
+    }
+
+    .next-steps {
+        background: rgba(59, 130, 246, 0.15);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        border-radius: 12px;
+        padding: 24px;
+        margin: 32px 0;
+        text-align: left;
+    }
+
+    .next-steps h3 {
+        color: #F8FAFC;
+        font-weight: 700;
+        margin-bottom: 16px;
+    }
+
+    .next-steps ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .next-steps li {
+        color: #CBD5E1;
+        padding: 12px 0;
+        padding-left: 36px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .next-steps i {
+        position: absolute;
+        left: 0;
+        color: #6366F1;
+        font-size: 1.1rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 32px;
+    }
+
+    .btn-primary {
+        background: #6366F1;
+        color: #FFFFFF;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .btn-primary:hover {
+        background: #4F46E5;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+    }
+
+    .btn-outline {
+        background: rgba(255, 255, 255, 0.15);
+        color: #F8FAFC;
+        border: 1px solid rgba(224, 231, 255, 0.30);
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .btn-outline:hover {
+        background: rgba(255, 255, 255, 0.25);
+        border-color: #6366F1;
+    }
+
+    @media (max-width: 768px) {
+        .success-card {
+            padding: 40px 20px;
+        }
+
+        .success-icon {
+            font-size: 3.5rem;
+        }
+
+        .success-card h2 {
+            font-size: 1.5rem;
+        }
+
+        .details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn-primary, .btn-outline {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
 <!-- Success Message -->
 <section class="success-section">
     <div class="container">
@@ -53,31 +277,16 @@
             </div>
 
             <div class="action-buttons">
-                <a href="{{ url('/') }}" class="btn btn-primary">
+                <a href="{{ url('/') }}" class="btn-primary">
                     <i class="fas fa-home"></i> Kembali ke Beranda
                 </a>
-                <a href="{{ route('pendaftaran.check-status.form') }}" class="btn btn-outline">
+                <a href="{{ route('pendaftaran.check-status.form') }}" class="btn-outline">
                     <i class="fas fa-chart-line"></i> Cek Status Pendaftaran
                 </a>
             </div>
         </div>
     </div>
 </section>
-
-<style>
-.success-section {
-    padding: 80px 0;
-    background: linear-gradient(135deg, #EFF6FF 0%, #F3F4F6 100%);
-    min-height: 100vh;
-}
-
-.success-card {
-    background: white;
-    padding: 50px;
-    border-radius: 16px;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    text-align: center;
-    max-width: 700px;
     margin: 0 auto;
 }
 

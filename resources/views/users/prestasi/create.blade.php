@@ -3,17 +3,300 @@
 @section('title', 'Ajukan Prestasi - HIMA-TI')
 
 @section('content')
+<link rel="stylesheet" href="{{ asset('css/glassmorphism.css') }}">
+
+<style>
+    /* Background & Overlay managed by app.blade.php */
+    body::before {
+        z-index: 0 !important;
+    }
+
+    .container-fluid {
+        position: relative;
+        z-index: 2;
+        min-height: 100vh;
+    }
+
+    .header-glass {
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid rgba(224, 231, 255, 0.25);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+        margin-top: 70px;
+    }
+
+    .header-glass h1 {
+        color: #F8FAFC;
+        text-shadow: 0 2px 4px rgba(2, 6, 23, 0.2);
+    }
+
+    .header-glass p {
+        color: #CBD5E1;
+    }
+
+    .card-glass {
+        background: rgba(255, 255, 255, 0.18);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(224, 231, 255, 0.30);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(2, 6, 23, 0.15);
+        color: #F8FAFC;
+    }
+
+    .card-glass .card-header {
+        background: rgba(99, 102, 241, 0.2) !important;
+        border-bottom: 1px solid rgba(99, 102, 241, 0.3) !important;
+        color: #F8FAFC !important;
+    }
+
+    .card-glass .card-body {
+        color: #E0E7FF;
+    }
+
+    .card-glass .card-body label {
+        color: #FFFFFF;
+        font-weight: 700;
+        font-size: 0.95rem;
+    }
+
+    .card-glass input,
+    .card-glass select,
+    .card-glass textarea {
+        background: rgba(15, 23, 42, 0.6) !important;
+        border: 1px solid rgba(224, 231, 255, 0.20) !important;
+        color: #F8FAFC !important;
+        backdrop-filter: blur(6px);
+        font-weight: 500;
+    }
+
+    .card-glass input::placeholder,
+    .card-glass textarea::placeholder {
+        color: #64748B !important;
+        font-weight: 400;
+    }
+
+    .card-glass input:focus,
+    .card-glass select:focus,
+    .card-glass textarea:focus {
+        outline: none;
+        background: rgba(15, 23, 42, 0.8) !important;
+        border-color: #6366F1 !important;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+        color: #FFFFFF !important;
+    }
+
+    .btn-primary {
+        background: #6366F1 !important;
+        border-color: #6366F1 !important;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+    }
+
+    .btn-primary:hover {
+        background: #4F46E5 !important;
+        border-color: #4F46E5 !important;
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+    }
+
+    .btn-outline-primary {
+        color: #6366F1;
+        border-color: rgba(99, 102, 241, 0.3);
+        background: rgba(99, 102, 241, 0.1);
+    }
+
+    .btn-outline-primary:hover {
+        color: #FFF;
+        background: #6366F1;
+        border-color: #6366F1;
+    }
+
+    .alert-danger {
+        background: rgba(239, 68, 68, 0.15) !important;
+        border: 1px solid rgba(239, 68, 68, 0.3) !important;
+        color: #FCA5A5 !important;
+    }
+
+    .steps {
+        display: flex;
+        justify-content: space-between;
+        position: relative;
+        z-index: 1;
+    }
+
+    .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
+    }
+
+    .step-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(99, 102, 241, 0.2);
+        border: 2px solid rgba(99, 102, 241, 0.5);
+        color: #A5B4FC;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .step.active .step-number {
+        background: #6366F1;
+        color: #FFFFFF;
+        border-color: #6366F1;
+    }
+
+    .step-label {
+        color: #E0E7FF;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    .step.active .step-label {
+        color: #FFFFFF;
+        font-weight: 700;
+    }
+
+    option {
+        background: #1E293B;
+        color: #F8FAFC;
+    }
+
+    .text-muted {
+        color: #CBD5E1 !important;
+        font-weight: 500 !important;
+    }
+
+    .badge {
+        background: rgba(99, 102, 241, 0.25) !important;
+        color: #FFFFFF !important;
+        border: 1px solid rgba(99, 102, 241, 0.4);
+    }
+
+    h5, h6 {
+        color: #FFFFFF;
+        font-weight: 700;
+    }
+
+    table {
+        color: #E0E7FF;
+    }
+
+    table th {
+        color: #FFFFFF;
+        font-weight: 700;
+        background: rgba(99, 102, 241, 0.2);
+    }
+
+    /* Alert styling - glassmorphism */
+    .alert {
+        background: rgba(255, 255, 255, 0.15) !important;
+        border: 1px solid rgba(224, 231, 255, 0.30) !important;
+        color: #E0E7FF !important;
+        backdrop-filter: blur(4px);
+        border-radius: 12px;
+    }
+
+    .alert-info {
+        background: rgba(59, 130, 246, 0.15) !important;
+        border-color: rgba(59, 130, 246, 0.3) !important;
+        color: #BFDBFE !important;
+    }
+
+    .alert-info strong {
+        color: #FFFFFF;
+    }
+
+    /* Mahasiswa card styling */
+    .mahasiswa-item {
+        background: rgba(15, 23, 42, 0.5) !important;
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(224, 231, 255, 0.20) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 4px 12px rgba(2, 6, 23, 0.3);
+        color: #E0E7FF;
+    }
+
+    .mahasiswa-item .card-header {
+        background: rgba(99, 102, 241, 0.15) !important;
+        border-bottom: 1px solid rgba(99, 102, 241, 0.2) !important;
+        color: #FFFFFF !important;
+        border-radius: 16px 16px 0 0 !important;
+    }
+
+    .mahasiswa-item .card-body {
+        background: transparent !important;
+        color: #E0E7FF;
+    }
+
+    .mahasiswa-item .form-label {
+        color: #FFFFFF;
+        font-weight: 700;
+    }
+
+    .mahasiswa-item .form-control,
+    .mahasiswa-item .form-select {
+        background: rgba(15, 23, 42, 0.6) !important;
+        border: 1px solid rgba(224, 231, 255, 0.20) !important;
+        color: #FFFFFF !important;
+        backdrop-filter: blur(6px);
+    }
+
+    .mahasiswa-item .form-control::placeholder {
+        color: #64748B !important;
+    }
+
+    .mahasiswa-item .form-control:focus,
+    .mahasiswa-item .form-select:focus {
+        background: rgba(15, 23, 42, 0.8) !important;
+        border-color: #6366F1 !important;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+        color: #FFFFFF !important;
+    }
+
+    .mahasiswa-item .input-group-text {
+        display: none !important;
+    }
+
+    .section-header {
+        border-bottom: 2px solid rgba(99, 102, 241, 0.3);
+        padding-bottom: 16px;
+    }
+
+    .step-badge {
+        min-width: 40px;
+        height: 40px;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+    }
+
+    .form-step {
+        display: none;
+    }
+
+    .form-step.active {
+        display: block;
+    }
+</style>
+
 <div class="container-fluid py-4">
     <div class="row justify-content-center">
         <div class="col-12 col-xl-10">
             <!-- Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="header-glass d-flex justify-content-between align-items-center">
                 <div>
-                    <h1 class="h3 mb-2 text-gray-800">
-                        <i class="fas fa-trophy text-primary me-2"></i>
+                    <h1 class="h3 mb-2">
+                        <i class="fas fa-trophy me-2"></i>
                         Form Pengajuan Prestasi
                     </h1>
-                    <p class="text-muted mb-0">Isi form berikut untuk mengajukan prestasi</p>
+                    <p class="mb-0">Isi form berikut untuk mengajukan prestasi</p>
                 </div>
                 <a href="{{ route('prestasi.index') }}" class="btn btn-outline-primary">
                     <i class="fas fa-arrow-left me-2"></i>Kembali ke Daftar
@@ -21,7 +304,7 @@
             </div>
 
             <!-- Progress Steps -->
-            <div class="card mb-4">
+            <div class="card-glass mb-4">
                 <div class="card-body py-3">
                     <div class="steps">
                         <div class="step active">
@@ -41,7 +324,7 @@
             </div>
 
             <!-- Main Form Card -->
-            <div class="card shadow-lg">
+            <div class="card-glass shadow-lg">
                 <div class="card-header bg-primary text-white py-3">
                     <h5 class="mb-0">
                         <i class="fas fa-clipboard-list me-2"></i>

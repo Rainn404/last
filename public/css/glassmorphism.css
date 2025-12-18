@@ -1,0 +1,512 @@
+/* ============================================
+   GLASSMORPHISM DESIGN SYSTEM
+   Color Palette & Fixed Background Treatment
+   ============================================ */
+
+/* ============================================
+   ROOT COLORS & VARIABLES
+   ============================================ */
+:root {
+    /* Primary Colors */
+    --color-primary: #6366F1;
+    --color-primary-hover: #4F46E5;
+    --color-primary-light: #818CF8;
+    
+    /* Text Colors */
+    --text-primary: #F8FAFC;
+    --text-secondary: #E0E7FF;
+    --text-body: #CBD5E1;
+    --text-muted: #94A3B8;
+    
+    /* Border & Background */
+    --border-light: #E0E7FF;
+    --bg-glass: #FFFFFF;
+    --bg-overlay-primary: #0F172A;
+    --bg-overlay-secondary: #312E81;
+    
+    /* Shadow Colors */
+    --shadow-dark: #020617;
+    
+    /* Opacity Values */
+    --opacity-overlay-primary: 0.55;
+    --opacity-overlay-secondary: 0.25;
+    --opacity-glass: 0.18;
+    --opacity-glass-hover: 0.25;
+    --opacity-glass-active: 0.20;
+    --opacity-border: 0.30;
+    --opacity-shadow: 0.1;
+}
+
+/* ============================================
+   BACKGROUND TREATMENT - FIXED & FULL COVERAGE
+   ============================================ */
+
+/* Main body with fixed background image */
+body.glassmorphism-bg {
+    background-image: url('/logo_bg/gedung politala');
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+    min-height: 100vh;
+}
+
+/* Overlay layer with primary color */
+body.glassmorphism-bg::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(15, 23, 42, 0.55);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Secondary overlay tint for richness */
+body.glassmorphism-bg::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(49, 46, 129, 0.25);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Ensure content appears above overlays */
+.glassmorphism-content {
+    position: relative;
+    z-index: 2;
+}
+
+/* ============================================
+   NAVBAR / FIXED HEADER STYLING
+   ============================================ */
+
+.navbar.glassmorphism-navbar {
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(224, 231, 255, 1);
+    color: #F8FAFC;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar.glassmorphism-navbar .navbar-brand {
+    color: #F8FAFC;
+    font-weight: 600;
+}
+
+.navbar.glassmorphism-navbar .nav-link {
+    color: #CBD5E1;
+    transition: color 0.3s ease;
+    font-weight: 500;
+}
+
+.navbar.glassmorphism-navbar .nav-link:hover {
+    color: #E0E7FF;
+}
+
+.navbar.glassmorphism-navbar .nav-link.active {
+    color: #6366F1;
+    border-bottom: 2px solid #4F46E5;
+}
+
+/* ============================================
+   SECTION & CONTAINER STYLING
+   ============================================ */
+
+/* Glass container - main sections */
+.glass-section {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(224, 231, 255, 0.25);
+    border-radius: 20px;
+    padding: 40px 30px;
+    margin: 30px 0;
+    box-shadow: 0 8px 32px rgba(2, 6, 23, 0.1);
+    position: relative;
+    z-index: 2;
+}
+
+.glass-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+    position: relative;
+    z-index: 2;
+}
+
+/* Hero section with glass treatment */
+.hero-glass {
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(15px);
+    border-bottom: 1px solid rgba(224, 231, 255, 0.25);
+    color: #F8FAFC;
+    text-align: center;
+    padding: 80px 20px;
+    margin-top: 70px;
+    position: relative;
+    z-index: 2;
+}
+
+.hero-glass h1 {
+    font-weight: 800;
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    text-shadow: 0 2px 4px rgba(2, 6, 23, 0.2);
+}
+
+.hero-glass p {
+    max-width: 700px;
+    font-size: 1.1rem;
+    opacity: 0.95;
+    margin: 0 auto;
+    color: #E0E7FF;
+}
+
+/* ============================================
+   GLASS CARD STYLING
+   ============================================ */
+
+/* Default glass card */
+.glass-card {
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(224, 231, 255, 0.30);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 16px rgba(2, 6, 23, 0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 2;
+}
+
+.glass-card:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: #6366F1;
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Card text colors */
+.glass-card h3,
+.glass-card h4,
+.glass-card .card-title {
+    color: #F8FAFC;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.glass-card p,
+.glass-card .card-text {
+    color: #CBD5E1;
+    line-height: 1.6;
+}
+
+.glass-card .text-muted {
+    color: #94A3B8;
+}
+
+/* Active card state */
+.glass-card.active {
+    background: rgba(99, 102, 241, 0.20);
+    border-color: #4F46E5;
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.25);
+}
+
+.glass-card.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: #4F46E5;
+    border-radius: 16px 0 0 16px;
+}
+
+/* ============================================
+   GLASS BUTTON STYLING
+   ============================================ */
+
+/* Primary button */
+.btn-glass-primary {
+    background: #6366F1;
+    color: #FFFFFF;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+}
+
+.btn-glass-primary:hover {
+    background: #4F46E5;
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+    transform: translateY(-2px);
+    color: #FFFFFF;
+}
+
+/* Secondary glass button */
+.btn-glass-secondary {
+    background: rgba(255, 255, 255, 0.15);
+    color: #F8FAFC;
+    border: 1px solid rgba(224, 231, 255, 0.30);
+    padding: 12px 28px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(8px);
+}
+
+.btn-glass-secondary:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: #6366F1;
+    color: #E0E7FF;
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.2);
+}
+
+/* ============================================
+   TYPOGRAPHY - OPTIMIZED FOR GLASS
+   ============================================ */
+
+/* Headings */
+h1.glass-heading,
+h2.glass-heading,
+h3.glass-heading,
+h4.glass-heading {
+    color: #F8FAFC;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(2, 6, 23, 0.2);
+}
+
+/* Subheading */
+.glass-subheading {
+    color: #E0E7FF;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+/* Body text */
+.glass-body {
+    color: #CBD5E1;
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+/* Muted text */
+.glass-muted {
+    color: #94A3B8;
+}
+
+/* Links */
+a.glass-link {
+    color: #6366F1;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+a.glass-link:hover {
+    color: #818CF8;
+    text-decoration: underline;
+}
+
+/* ============================================
+   INPUT & FORM STYLING
+   ============================================ */
+
+.glass-input,
+.glass-select,
+.glass-textarea {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(224, 231, 255, 0.30);
+    border-radius: 8px;
+    color: #F8FAFC;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(8px);
+}
+
+.glass-input::placeholder,
+.glass-textarea::placeholder {
+    color: #94A3B8;
+}
+
+.glass-input:focus,
+.glass-select:focus,
+.glass-textarea:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.20);
+    border-color: #6366F1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+/* ============================================
+   GRID & LAYOUT
+   ============================================ */
+
+.glass-grid {
+    display: grid;
+    gap: 24px;
+    position: relative;
+    z-index: 2;
+}
+
+.glass-grid.cols-1 {
+    grid-template-columns: 1fr;
+}
+
+.glass-grid.cols-2 {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.glass-grid.cols-3 {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+/* ============================================
+   SPACING & TOP MARGIN FOR NAVBAR
+   ============================================ */
+
+/* Ensure content doesn't hide behind navbar */
+.glass-top-spacing {
+    margin-top: 90px;
+}
+
+main.glassmorphism-content {
+    padding-top: 20px;
+    position: relative;
+    z-index: 2;
+}
+
+/* ============================================
+   BADGE & TAGS
+   ============================================ */
+
+.glass-badge {
+    background: rgba(99, 102, 241, 0.20);
+    border: 1px solid #6366F1;
+    color: #E0E7FF;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.glass-badge.success {
+    background: rgba(34, 197, 94, 0.20);
+    border-color: #22C55E;
+    color: #86EFAC;
+}
+
+.glass-badge.warning {
+    background: rgba(251, 146, 60, 0.20);
+    border-color: #FB923C;
+    color: #FDBA74;
+}
+
+.glass-badge.error {
+    background: rgba(239, 68, 68, 0.20);
+    border-color: #EF4444;
+    color: #FCA5A5;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+    .glass-section {
+        padding: 24px 16px;
+        border-radius: 12px;
+    }
+
+    .hero-glass {
+        padding: 60px 20px;
+        margin-top: 60px;
+    }
+
+    .hero-glass h1 {
+        font-size: 1.8rem;
+    }
+
+    .hero-glass p {
+        font-size: 0.95rem;
+    }
+
+    .glass-card {
+        padding: 16px;
+        border-radius: 12px;
+    }
+
+    .glass-grid.cols-2,
+    .glass-grid.cols-3 {
+        grid-template-columns: 1fr;
+    }
+
+    .btn-glass-primary,
+    .btn-glass-secondary {
+        width: 100%;
+    }
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes glass-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.glass-animate-in {
+    animation: glass-fade-in 0.6s ease-out;
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+.glass-text-white {
+    color: #F8FAFC;
+}
+
+.glass-text-light {
+    color: #E0E7FF;
+}
+
+.glass-text-muted {
+    color: #CBD5E1;
+}
+
+.glass-text-center {
+    text-align: center;
+}
+
+.glass-rounded {
+    border-radius: 16px;
+}
+
+.glass-shadow {
+    box-shadow: 0 8px 32px rgba(2, 6, 23, 0.15);
+}
