@@ -10,17 +10,39 @@
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+ 
+  
+  
 
     <style>
+   html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+#bgVideo {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: -1;
+    pointer-events: none;
+}
+
+
+
         /* === Fixed Background & Overlay === */
-        html {
+    /*   html {
             margin: 0;
             padding: 0;
             background: url('{{ asset("logo_bg/Gedung 2 Politala-thumbnail.jpg") }}') fixed center/cover no-repeat;
             background-attachment: fixed;
             min-height: 100vh;
         }
-
+*/
         html, body {
             margin: 0;
             padding: 0;
@@ -288,6 +310,16 @@
             margin-top: 20px;
             border-top: 1px solid rgba(224, 231, 255, 0.2);
         }
+        #bgVideo {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: -2;
+    pointer-events: none;
+}
+
     </style>
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -295,6 +327,11 @@
 </head>
 
 <body>
+
+      <video id="bgVideo" autoplay muted loop playsinline>
+        <source src="{{ asset('logo_bg/vidio.mp4') }}" type="video/mp4">
+    </video>
+
 <nav class="navbar">
     <div class="nav-container">
         <div class="nav-logo">

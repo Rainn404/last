@@ -457,11 +457,23 @@
         padding: 30px 20px;
     }
 }
+.bg-video {
+    position: fixed;    
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;    
+    z-index: -1;
+}
+.
 </style>
+
 
 <!-- Hero Section -->
 <section class="hero">
     <div class="hero-content">
+
         <h1>SISTEM INFORMASI KEMAHASISWAAN<br>TEKNOLOGI INFORMASI</h1>
         <p>Mengembangkan potensi mahasiswa di bidang teknologi, kepemimpinan, dan kontribusi sosial</p>
         <div class="hero-buttons">

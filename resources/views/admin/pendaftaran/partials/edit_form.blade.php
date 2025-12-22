@@ -16,7 +16,7 @@
             <label class="form-label">No HP</label>
             <input type="text" class="form-control" name="no_hp" value="{{ $pendaftaran->no_hp }}">
         </div>
-    </div>
+    </div>```11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
     <div class="col-md-6">
         <div class="mb-3">
             <label class="form-label">Status Pendaftaran *</label>
